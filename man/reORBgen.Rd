@@ -24,8 +24,8 @@ alpha)
   \item{n1}{A vector of the corresponding sample size of the treatment group. Needs to be provided even for the studies which do not report the outcome.}
   \item{n2}{A vector of the corresponfing sample size of the control group. Needs to be provided even for the studies which do not report the outcome.}
   \item{outcome}{A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").}
-  \item{init_param}{A vector of length two, containing the values to be used for initialization of the joint optimization of the gloval treatment effect $\mu$ and the between-study heterogeneity $\tau^2$ of the random effect model, e.g., initi_param = c(0.1, 0.05).}
-  \item{alpha}{The value for the desired confidence level. Default $\alpha=0.05$.}
+  \item{init_param}{A vector of length two, containing the values to be used for initialization of the joint optimization of the gloval treatment effect $mu$ and the between-study heterogeneity $tau^2$ of the random effect model, e.g., initi_param = c(0.1, 0.05).}
+  \item{alpha}{The value for the desired confidence level. Default $alpha=0.05$.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
