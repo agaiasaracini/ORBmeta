@@ -17,7 +17,7 @@ library(rootSolve)
 #                      and heterogeneity parameters for initialization of optimiziation
 #          alpha: confidence level
 
-reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
+reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.CI = TRUE) {
 
   #Indecies where we have the reported outcomes and the unreported with high risk (HR)
   rep_index <- which(!is.na(y) & y != "high")
@@ -38,8 +38,16 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
   #k estimation, based on reported studies
   k <- sum(1/sigma_squared)/sum((n1_rep + n2_rep))
 
-  #imputed variances for the HR studies
-  sigma_squared_imputed <- 1/(k*n_HR)
+
+  if (!is.null(true.SE)){
+
+    sigma_squared_imputed <- (as.numeric(true.SE)[HR_index])^2
+  } else {
+    # imputed variances for the HR studies                          #ok until now
+    sigma_squared_imputed <- 1/(k*n_HR)
+
+  }
+
 
   #Unadjusted log-likelihood function to be maximized
   f.u <- function(params, logRR, sigma_squared) {
@@ -71,8 +79,8 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
       tau_squared <- params[2]
       z_alpha <- qnorm(1 - alpha/2)
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sigma_squared_imputed - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
-                  pnorm((-z_alpha*sigma_squared_imputed - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
+                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
 
     }
 
@@ -99,6 +107,8 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
     #ci.u.adj.b <- fit.adj.b$par[1] + qnorm(c(a/2, 1-a/2)) * s.adj.b
 
     #LIKELIHOOD RATIO CONFIDENCE INTERVALS
+
+    if (LR.CI){
 
     #Unadjusted
     z <- qchisq(1-alpha, df=1) #3.841
@@ -142,8 +152,8 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
       z_alpha <- qnorm(1-alpha/2)
 
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sigma_squared_imputed - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
-                  pnorm((-z_alpha*sigma_squared_imputed - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
+                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
     }
 
 
@@ -200,6 +210,20 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
 
     ))
 
+
+    } else {
+
+
+
+      return(list(
+        mu_unadjusted = mle.u,
+        mu_adjusted_benefit = mle.b,
+        tau_squared_unadjusted = mle.tau,
+        tau_squared_adjusted = mle.b.tau
+      ))
+
+
+    }
   } else if (outcome == "harm"){
 
     #Adjusted log-likelihood function for harmful outcome to be maximized
@@ -225,6 +249,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
 
 
     #LIKELIHOOD RATIO CONFIDENCE INTERVALS
+
+    if (LR.CI){
+
 
     #Unadjusted
     z <- qchisq(1-alpha, df=1) #3.841
@@ -256,8 +283,8 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
       pl.u(mu, logRR=logRR, sigma_squared=sigma_squared) - pl.u(mle.u, logRR=logRR, sigma_squared=sigma_squared) + 1/2*qchisq(0.95, df=1)
     }
 
-    lowerBound.u <- uniroot.all(f, interval = c(-1, 2), logRR=logRR, sigma_squared=sigma_squared)[1]
-    upperBound.u <- uniroot.all(f, interval = c(-1, 2), logRR=logRR, sigma_squared=sigma_squared)[2]
+    lowerBound.u <- uniroot.all(f, interval = c(-1, 1), logRR=logRR, sigma_squared=sigma_squared)[1]
+    upperBound.u <- uniroot.all(f, interval = c(-1, 1), logRR=logRR, sigma_squared=sigma_squared)[2]
 
 
     ll.h <- function(mu, tau_squared, logRR, sigma_squared, sigma_squared_imputed) {
@@ -329,6 +356,15 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha) {
                 #CI_adjusted_harm_up_WALD = exp(ci.u.adj.h)[2]
 
     ))
+
+    }else {
+      return(list(
+        mu_unadjusted = mle.u,
+        mu_adjusted_harm = mle.h,
+        tau_squared_unadjusted = mle.tau,
+        tau_squared_adjusted = mle.h.tau
+      ))
+}
 
 
   } else {
