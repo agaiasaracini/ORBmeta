@@ -37,8 +37,17 @@ LR.CI = TRUE)
 }
 \value{
 
-%%\item{comp1 }{Description of 'comp1'}
-%%\item{comp2 }{Description of 'comp2'}
+Returns a list containing the following results:
+
+\item{mu_unadjusted}{Maximum likelihood (ML) estimate of the treatment effect, unadjusted for ORB}
+\item{LR_mu_unadjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
+\item{LR_mu_unadjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
+\item{mu_adjusted_benefit}{ML estimate of the treatment effect, adjusted for ORB, assuming beneficial outcome}
+\item{LR_mu_adjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+\item{LR_mu_adjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+\item{tau_squared_unadjusted}{ML estimate of heterogeneity parameter \eqn{\tau^2}, from unadjusted log-likelihood function}
+\item{tau_squared_adjusted}{ML estimate of heterogeneity parameter \eqn{\tau^2}, from adjusted log-likelihood function}
+
 %% ...
 }
 \references{
@@ -57,15 +66,13 @@ LR.CI = TRUE)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (x)
-{
-  }
-}
+Generate a meta-analysis dataset with \code{simualte_meta_data} with ORB.
+dat <- simulate_meta_data(n_studies=10, mu=0.1, tau_squared = 0.002, seed=123456789, gamma=1.5)$meta_data_missing
+
+Apply the reORBgen function.
+reORBgen(y=dat$y, s=dat$sd, n1=dat$`N treatment`, n2=dat$`N control`, outcome="benefit", init_param = c(0.1, 0.005), alpha=0.05, true.SE=NULL, LR.CI=TRUE)
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }
