@@ -7,6 +7,8 @@
 #gen: generic, because it takes in an observed treatment effect, assumed to be
 #     normally distributed, with standard error and sample sizes
 
+
+#'
 library(rootSolve)
 
 #Takes in  y: observed treatment effect y normally distributed
@@ -17,6 +19,7 @@ library(rootSolve)
 #                      and heterogeneity parameters for initialization of optimiziation
 #          alpha: confidence level
 
+#' @export
 reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.CI = TRUE) {
 
   #Indecies where we have the reported outcomes and the unreported with high risk (HR)
