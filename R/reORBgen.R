@@ -53,6 +53,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
 
   }
 
+  #Average sigma squared value that is used when we do not adjust for ORB and when we do
+  sigma_squared_average_unadjusted <- mean(sigma_squared)
+  sigma_squared_average_adjusted <- mean(c(sigma_squared, sigma_squared_imputed))
 
   #Unadjusted log-likelihood function to be maximized
   f.u <- function(params, logRR, sigma_squared) {
@@ -261,7 +264,10 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
                 tau_squared_adjusted = mle.b.tau,
 
                 tau_squared_unadjusted_REML = tau.REML,
-                tau_squared_adjusted_REML = tau.adj.REML
+                tau_squared_adjusted_REML = tau.adj.REML,
+
+                average_sigma_squared_unadjusted = sigma_squared_average_unadjusted,
+                sigma_squared_average_adjusted = sigma_squared_average_adjusted
 
 
                 #CI_adjusted_benefit_low_WALD = ci.u.adj.b[1],
@@ -280,7 +286,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
         tau_squared_unadjusted = mle.tau,
         tau_squared_adjusted = mle.b.tau,
         tau_squared_unadjusted_REML = tau.REML,
-        tau_squared_adjusted_REML = tau.adj.REML
+        tau_squared_adjusted_REML = tau.adj.REML,
+        average_sigma_squared_unadjusted = sigma_squared_average_unadjusted,
+        sigma_squared_average_adjusted = sigma_squared_average_adjusted
       ))
 
 
@@ -413,7 +421,10 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
 
 
                 tau_squared_unadjsuted = mle.tau,
-                tau_squared_adjusted = mle.h.tau
+                tau_squared_adjusted = mle.h.tau,
+
+                average_sigma_squared_unadjusted = sigma_squared_average_unadjusted,
+                sigma_squared_average_adjusted = sigma_squared_average_adjusted
 
 
                 #CI_adjusted_harm_low_WALD = exp(ci.u.adj.h)[1],
@@ -426,7 +437,10 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
         mu_unadjusted = mle.u,
         mu_adjusted_harm = mle.h,
         tau_squared_unadjusted = mle.tau,
-        tau_squared_adjusted = mle.h.tau
+        tau_squared_adjusted = mle.h.tau,
+
+        average_sigma_squared_unadjusted = sigma_squared_average_unadjusted,
+        sigma_squared_average_adjusted = sigma_squared_average_adjusted
       ))
 }
 
