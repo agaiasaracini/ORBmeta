@@ -20,33 +20,35 @@ library(rootSolve)
 #          alpha: confidence level
 
 #' @export
-reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.CI = TRUE) {
+reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.CI = FALSE) {
 
   #Indecies where we have the reported outcomes and the unreported with high risk (HR)
   rep_index <- which(!is.na(y) & y != "high")
   HR_index <- which(y == "high")
 
-  #obs treatment effect, standard error^2, and sample sizes of reported outcomes
+  #Observed treatment effect, standard error^2, and sample sizes of reported outcomes
   logRR <- as.numeric(y[rep_index])
   sigma_squared <- (as.numeric(s[rep_index]))^2
   n1_rep <- as.numeric(n1[rep_index])
   n2_rep <- as.numeric(n2[rep_index])
 
 
-  #total sample size of unreported outcomes
+  #Total sample size of unreported outcomes
   n_HR <- as.numeric(n1[HR_index]) + as.numeric(n2[HR_index])
 
-  #Copas et al. 2014, 2019 method for imputation of missing variances
+  #Copas et al. (2014, 2019) method for imputation of missing variances
 
   #k estimation, based on reported studies
   k <- sum(1/sigma_squared)/sum((n1_rep + n2_rep))
 
 
+
+  #Possibility to pass the true SE to the function
   if (!is.null(true.SE)){
 
     sigma_squared_imputed <- (as.numeric(true.SE)[HR_index])^2
   } else {
-    # imputed variances for the HR studies                          #ok until now
+    #Imputed variances for the HR studies
     sigma_squared_imputed <- 1/(k*n_HR)
 
   }
@@ -73,10 +75,11 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
   mle.tau <- max(fit.u$par[2],0)
 
 
+  #Beneficial outcome adjustment for ORB
 
   if(outcome == "benefit"){
 
-    # adjusted likelihood function for beneficial outcome to be maximized
+    #Adjusted log-likelihood function for beneficial outcome to be maximized
     f.adj.b <- function(params, logRR, sigma_squared, sigma_squared_imputed) {
       mu <- params[1]
       tau_squared <- params[2]
@@ -97,6 +100,56 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
     #Return adjusted mu and tau_squared
     mle.b <- fit.adj.b$par[1]
     mle.b.tau <- max(fit.adj.b$par[2],0)
+
+
+    #REML ESTIMATION OF TAU SQUARED UNADJUSTED AND ADJUSTED
+
+    #unadjusted REML likelihood
+    lik.REML <- function(tau_squared, sigma_squared, logRR ){
+
+      w_i <- 1/(sigma_squared + tau_squared)
+      mu.REML <- sum(w_i*logRR)/sum(w_i)
+
+
+      (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2))
+
+    }
+
+    init <- init_param[2]
+
+    fit.lik.REML <- optim(init, lik.REML, sigma_squared=sigma_squared, logRR=logRR,
+                          method= "Brent",
+                          lower = 0, upper=10,
+                          control = list(fnscale = -1))
+
+    tau.REML <- max(fit.lik.REML$par,0)
+
+
+    #Adjusted REML function benefit
+    lik.adj.REML <- function(tau_squared, sigma_squared, sigma_squared_imputed, logRR ){
+
+      w_i <- 1/(sigma_squared + tau_squared)
+      mu.REML <- sum(w_i*logRR)/sum(w_i)
+      z_alpha <- qnorm(1 - 0.05/2)
+
+
+      (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2))+
+
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared)) -
+                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
+
+
+    }
+
+
+    fit.lik.adj.REML <- optim(init, lik.adj.REML, sigma_squared=sigma_squared, sigma_squared_imputed= sigma_squared_imputed, logRR=logRR,
+                              method= "Brent",
+                              lower = 0, upper=10,
+                              control = list(fnscale = -1))
+
+    tau.adj.REML <- max(fit.lik.adj.REML$par,0)
+
+
 
     #WALD CONFIDENCE INTERVALS
     #a <- 0.05 #for harm Copas et al use 99% conf level
@@ -122,7 +175,7 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared))
     }
 
-
+    #Profile log-likelihood
     pl.u <- function(mu, logRR, sigma_squared) { #take in vector of mus
 
       res <- mu
@@ -131,7 +184,6 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
         optimResult <- optim(par = init_param[2],
                              fn = function(tau_squared) ll.u(mu[i], tau_squared, logRR=logRR, sigma_squared = sigma_squared),
                              method = "Nelder-Mead",
-                             #lower= 0,
                              control = list(fnscale = -1))
 
         res[i] <- optimResult$value
@@ -206,7 +258,10 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
                 LR_mu_adjusted_up = upperBound.b,
 
                 tau_squared_unadjusted = mle.tau,
-                tau_squared_adjusted = mle.b.tau
+                tau_squared_adjusted = mle.b.tau,
+
+                tau_squared_unadjusted_REML = tau.REML,
+                tau_squared_adjusted_REML = tau.adj.REML
 
 
                 #CI_adjusted_benefit_low_WALD = ci.u.adj.b[1],
@@ -223,11 +278,16 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
         mu_unadjusted = mle.u,
         mu_adjusted_benefit = mle.b,
         tau_squared_unadjusted = mle.tau,
-        tau_squared_adjusted = mle.b.tau
+        tau_squared_adjusted = mle.b.tau,
+        tau_squared_unadjusted_REML = tau.REML,
+        tau_squared_adjusted_REML = tau.adj.REML
       ))
 
 
     }
+
+
+    #Adjustment for ORB in harmful outcome
   } else if (outcome == "harm"){
 
     #Adjusted log-likelihood function for harmful outcome to be maximized

@@ -93,6 +93,7 @@ for (i in 1:n_studies) {
 # Calculate the replacement probability
 #replace_prob <- 1 - exp(-4 * pnorm(-as.numeric(meta_data$y) / as.numeric(meta_data$s))^gamma)
 
+
 #probability of being missing, ie 1-prob of selection
 replace_prob <- exp(-4 *as.numeric(meta_data$p_value)^gamma)
 # Generate a vector of "high" based on the replacement probability

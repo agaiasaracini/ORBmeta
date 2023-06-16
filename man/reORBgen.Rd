@@ -40,12 +40,19 @@ LR.CI = TRUE)
 Returns a list containing the following results:
 
 \item{mu_unadjusted}{Maximum likelihood (ML) estimate of the treatment effect, unadjusted for ORB}
+
 \item{LR_mu_unadjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
+
 \item{LR_mu_unadjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
+
 \item{mu_adjusted_benefit}{ML estimate of the treatment effect, adjusted for ORB, assuming beneficial outcome}
+
 \item{LR_mu_adjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+
 \item{LR_mu_adjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+
 \item{tau_squared_unadjusted}{ML estimate of heterogeneity parameter \eqn{\tau^2}, from unadjusted log-likelihood function}
+
 \item{tau_squared_adjusted}{ML estimate of heterogeneity parameter \eqn{\tau^2}, from adjusted log-likelihood function}
 
 %% ...
