@@ -11,13 +11,15 @@
 #'
 library(rootSolve)
 
-#Takes in  y: observed treatment effect y normally distributed
-#          s: standard error
+#Takes in  a: cell counts treatment
+#          c: cell counts control
 #          n1: sample size treatment
 #          n2: sample size control
-#          init_param: c(mean, heterogeneity) initial guess of true treatment effect
-#                      and heterogeneity parameters for initialization of optimiziation
+#          init_param: c(log RR, heterogeneity) initial guess of true treatment effect
+#                      and heterogeneity parameters for initialization of optimization
 #          alpha: confidence level
+#          true.SE=NULL if we know the standard errors
+#          LR.CI=FALSE if we want it to calculate the profile likelihood confidence intervals
 
 #' @export
 reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.CI = FALSE) {
@@ -69,7 +71,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
 
   #Maximize unadjusted function optim()
   fit.u <- optim(init_params, f.u, logRR = logRR, sigma_squared = sigma_squared,
-                 method = "Nelder-Mead",
+                 #method = "Nelder-Mead",
+                 method="L-BFGS-B",
+                 lower = c(-5, 0.000001),
                  control = list(fnscale = -1),
                  hessian=FALSE)
 
@@ -87,15 +91,33 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
       mu <- params[1]
       tau_squared <- params[2]
       z_alpha <- qnorm(1 - alpha/2)
+
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
-                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+
+
+        if (length(sigma_squared_imputed) > 0) {
+
+          #sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+          #	integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed),
+          #						lower = -10, upper = 10, subdivisions = 200, stop.on.error=FALSE)$value
+          #})))
+
+          sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+
+                  #- pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+
+
+        } else {
+          0  # Return 0 if sigma_squared_imputed is empty
+        }
+
 
     }
 
     #Maximize log-likelihood
     fit.adj.b <- optim(init_params, f.adj.b, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
-                       method = "Nelder-Mead",
+                       method = "L-BFGS-B",
+                       lower = c(-5, 0.000001),
                        control = list(fnscale = -1),
 
                        hessian=FALSE)
@@ -138,8 +160,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
 
       (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2))+
 
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared)) -
-                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
+
+                #- pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
 
 
     }
@@ -211,8 +234,9 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
       z_alpha <- qnorm(1-alpha/2)
 
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) -
-                  pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) ))
+
+                # -pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
     }
 
 
@@ -304,12 +328,21 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
       tau_squared <- params[2]
       z_alpha <- qnorm(1 - alpha/2)
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
+
+        if (length(sigma_squared_imputed)>0){
+
         sum(log(pnorm(mu/sqrt(sigma_squared_imputed + tau_squared))))
+
+        } else {
+
+          0
+        }
     }
 
     #Maximize log-likelihoood
     fit.adj.h <- optim(init_params, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
-                       method = "Nelder-Mead",
+                       method = "L-BFGS-B",
+                       lower = c(-5, 0.000001),
                        control = list(fnscale = -1),
 
                        hessian = FALSE)
@@ -433,6 +466,7 @@ reORBgen <- function(y, s, n1, n2, outcome, init_param, alpha, true.SE=NULL, LR.
     ))
 
     }else {
+
       return(list(
         mu_unadjusted = mle.u,
         mu_adjusted_harm = mle.h,
