@@ -357,7 +357,7 @@ Copas2014 <- function(p_vals, a=NULL, c=NULL, mu1=NULL, mu2=NULL, sd1=NULL, sd2=
   width <- abs(ci[1]-ci[2])
 
 
-  return(list(fit$par[2],
+  return(list(
               mle.unadjusted = mle.unadjusted,
               se.unadjusted = s.unadjusted,
               width.unadjusted = width.unadjusted,
