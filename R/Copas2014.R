@@ -1,19 +1,22 @@
 
 
-Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
+Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
   p1 <- p_vals[1]
   p2 <- p_vals[2]
 
+  #Significance
+  z_alpha <- qnorm(1-sign_level/2)
+
   #Reported outcomes
-  #indecies where we dont have low/high, ie
-  #if we turn C into numeric, the low/high (unreported become NA)
+  #Indecies where we don't have low/high, i.e., reported outcomes
+  #If we turn C into numeric, the low/high (unreported) become NA
   #Where do we have low and were do we have high
   Rep_index <- which(!is.na(as.numeric(a)))
   HR_index <- which(a == "high")
   LR_index <- which(a == "low")
 
-  # a,c,n1,n2,n values for the reported studies
+  # a,c,n1,n2, n values for the reported studies
   a_rep <- as.numeric(a[Rep_index])
   c_rep <- as.numeric(c[Rep_index])
   n1_rep <- as.numeric(n1[Rep_index])
@@ -39,23 +42,23 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
   #How many studies are reported?
   N_rep <- length(Rep_index)
 
-  #Unreported studies, we might have info from n1,n2 or just the total
+  #Unreported study sizes, we might have info from n1,n2 or just the total
   n_HR <- as.numeric(ntot[HR_index])
   n_LR <- as.numeric(ntot[LR_index])
 
   #logRR and standard error needed to evaluate if the study is significant or not
-  #Outcome is significant if |logRR| > 1.96*sigma
+  #Outcome is significant if |logRR| > z_alpha*sigma
   y <- log((a_rep*n2_rep)/(c_rep*n1_rep))
   s <- sqrt(((n1_rep - a_rep)/(n1_rep*a_rep)) + ((n2_rep - c_rep)/(n2_rep*c_rep)))
   s2 <- s^2
 
-  #check which are significant and which are not
+  #Check which are significant and which are not
   #we divide into the reported y (logRR) which are significant and those which are not
-  y_S <- y[which(abs(y) >= 1.96*s)]
-  y_s <- y[which(abs(y) <= 1.96*s)]
+  y_S <- y[which(abs(y) >= z_alpha*s)]
+  y_s <- y[which(abs(y) <= z_alpha*s)]
 
 
-  #how many studies are reported and non significant
+  #How many studies are reported and non significant
   N_rep_s <- length(y_s)
 
 
@@ -64,13 +67,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
   k <- sum(1/(s2))/sum((n1_rep + n2_rep))
 
 
-  #Imputed variances for the HR studies
-  s2_imp_HR <- 1/(k*n_HR)
-
-  #Imputed variances for th LR studies
-  s2_imp_LR <- 1/(k*n_LR)
-
-  #UNADJUSTED
+  #UNADJUSTED log-likelihood
   loglik.unadjusted <- function(param, y, s2, N_rep, N_rep_s){
 
     theta <- param[1]
@@ -84,16 +81,35 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
 
   }
 
-  init_param <- c(0.7, 0.01, 0.9, 0.9)
+  init_param <- init_param
 
   fit.unadjusted <- optim(init_param, loglik.unadjusted,  y=y, s2=s2,
                           N_rep=N_rep, N_rep_s=N_rep_s,
-                          method = "BFGS",
+                          #method = "BFGS",
+                          method =  "L-BFGS-B",
+                          lower = c(-10, 0, 0, 0),
                           control = list(fnscale = -1),
                           hessian=TRUE)
 
 
   mle.unadjusted <- fit.unadjusted$par[1]
+
+  a <- sign_level
+
+  #Unsdjusted
+  fisher_info.unadjusted <- solve(-fit.unadjusted$hessian)
+  s.unadjusted <- sqrt(diag(fisher_info.unadjusted)[1])
+  ci.unadjusted <- fit.unadjusted$par[1] + qnorm(c(a/2, 1-a/2)) * s.unadjusted
+  width.unadjusted <- abs(ci.unadjusted[1]-ci.unadjusted[2])
+
+  #ADJUSTMENT
+
+  if (length(HR_index)>0 & length(LR_index)>0){ #We have both HR and LR
+
+    #Imputed variances for the HR studies
+    s2_imp_HR <- 1/(k*n_HR)
+    #Imputed variances for th LR studies
+    s2_imp_LR <- 1/(k*n_LR)
 
   loglik <- function(param, p1, p2, y, s2, s2_imp_HR, s2_imp_LR, N_rep, N_rep_s){
 
@@ -113,27 +129,159 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
 
     f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
 
-    Q_HR <- pnorm((1.96*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2))) -
-      pnorm((-1.96*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
+    Q_HR <- pnorm((z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2))) -
+      pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
 
-    Q_LR <- pnorm((1.96*sqrt(s2_imp_LR) - theta)/(sqrt(s2_imp_LR + t2))) -
-      pnorm((-1.96*sqrt(s2_imp_LR) -  theta)/(sqrt(s2_imp_LR + t2)))
+    Q_LR <- pnorm((z_alpha*sqrt(s2_imp_LR) - theta)/(sqrt(s2_imp_LR + t2))) -
+      pnorm((-z_alpha*sqrt(s2_imp_LR) -  theta)/(sqrt(s2_imp_LR + t2)))
 
-    sum(log(f)) +  N_rep*log(alpha) + #REPORTED
-
-      N_rep_s*log(beta) + #REPORTED AND NOT SIGNIFICANT
-
-      sum(log(p1*alpha*(Q_HR)*(1-beta) + (1-p2)*(1-alpha))) + #HIGH RISK
-
-      sum(log((1-p1)*alpha*(Q_LR)*(1-beta) + p2*(1-alpha))) #LOW RISK
+    sum(log(f)) +
+    N_rep*log(alpha) + #REPORTED
+    N_rep_s*log(beta) +  #REPORTED AND NOT SIGNIFICANT
+    sum(log(p1*alpha*(Q_HR)*(1-beta) + (1-p2)*(1-alpha))) + #HIGH RISK
+    sum(log((1-p1)*alpha*(Q_LR)*(1-beta) + p2*(1-alpha))) #LOW RISK
 
   }
 
-  init_param <- c(0.7, 0.01, 0.9, 0.9)
+  init_param <- init_param
 
-  fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR,
-               s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
-               method = "Nelder-Mead",
+  fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
+               method =  "L-BFGS-B",
+               lower = c(-10, 0, 0, 0),
+               control = list(fnscale = -1),
+               hessian=TRUE)
+
+  mle <- fit$par[1]
+  val <- fit$value
+
+
+  } else if (length(HR_index)>0 & length(LR_index)==0){ #We have HR but not LR
+
+
+  #Imputed variances for the HR studies
+  s2_imp_HR <- 1/(k*n_HR)
+
+  loglik <- function(param, p1, p2, y, s2, s2_imp_HR, N_rep, N_rep_s){
+
+    #p1, p2 parameters which are assumed to be known (we can do a sensitivity analysis)
+    #y the logRR of the reported studies
+    #s2 the sigma squared of the reported studies
+    #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
+    #n_rep number of reportes studies
+    #n_rep_s number of reported and non significant studies
+
+
+    #parameters to be estimated with maximum likelihood
+    theta <- param[1]
+    t2 <- param[2]
+    alpha <- param[3]
+    beta <- param[4]
+
+    f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
+
+    Q_HR <- pnorm((z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2))) -
+      pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
+
+
+    sum(log(f)) +
+      N_rep*log(alpha) + #REPORTED
+      N_rep_s*log(beta) +  #REPORTED AND NOT SIGNIFICANT
+      sum(log(p1*alpha*(Q_HR)*(1-beta) + (1-p2)*(1-alpha))) #HIGH RISK
+
+  }
+
+  init_param <- init_param
+
+  fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_s=N_rep_s,
+               method =  "L-BFGS-B",
+               lower = c(-10, 0, 0, 0),
+               control = list(fnscale = -1),
+               hessian=TRUE)
+
+  mle <- fit$par[1]
+  val <- fit$value
+
+  } else if (length(HR_index)==0 & length(LR_index)>0){ #We have LR bur not HR
+
+
+    #Imputed variances for th LR studies
+    s2_imp_LR <- 1/(k*n_LR)
+
+    loglik <- function(param, p1, p2, y, s2, s2_imp_LR, N_rep, N_rep_s){
+
+      #p1, p2 parameters which are assumed to be known (we can do a sensitivity analysis)
+      #y the logRR of the reported studies
+      #s2 the sigma squared of the reported studies
+      #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
+      #n_rep number of reportes studies
+      #n_rep_s number of reported and non significant studies
+
+
+      #parameters to be estimated with maximum likelihood
+      theta <- param[1]
+      t2 <- param[2]
+      alpha <- param[3]
+      beta <- param[4]
+
+      f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
+
+
+      Q_LR <- pnorm((z_alpha*sqrt(s2_imp_LR) - theta)/(sqrt(s2_imp_LR + t2))) -
+        pnorm((-z_alpha*sqrt(s2_imp_LR) -  theta)/(sqrt(s2_imp_LR + t2)))
+
+      sum(log(f)) +
+        N_rep*log(alpha) + #REPORTED
+        N_rep_s*log(beta) +  #REPORTED AND NOT SIGNIFICANT
+        sum(log((1-p1)*alpha*(Q_LR)*(1-beta) + p2*(1-alpha))) #LOW RISK
+
+    }
+
+    init_param <- init_param
+
+    fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
+                 method =  "L-BFGS-B",
+                 lower = c(-10, 0, 0, 0),
+                 control = list(fnscale = -1),
+                 hessian=TRUE)
+
+    mle <- fit$par[1]
+    val <- fit$value
+
+
+      } else { #No ORB
+
+        loglik <- function(param, p1, p2, y, s2, N_rep, N_rep_s){
+
+          #p1, p2 parameters which are assumed to be known (we can do a sensitivity analysis)
+          #y the logRR of the reported studies
+          #s2 the sigma squared of the reported studies
+
+          #n_rep number of reportes studies
+          #n_rep_s number of reported and non significant studies
+
+
+          #parameters to be estimated with maximum likelihood
+          theta <- param[1]
+          t2 <- param[2]
+          alpha <- param[3]
+          beta <- param[4]
+
+          f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
+
+          sum(log(f)) +
+            N_rep*log(alpha) + #REPORTED
+            N_rep_s*log(beta)  #REPORTED AND NOT SIGNIFICANT
+
+
+  }
+
+
+  init_param <- init_param
+
+  fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
+               #method = "BFGS",
+               method =  "L-BFGS-B",
+               lower = c(-10, 0.00001, 0.00001, 0.0001),
                control = list(fnscale = -1),
                hessian=TRUE)
 
@@ -141,8 +289,10 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
   mle <- fit$par[1]
   val <- fit$value
 
+      }
+
   #WALD CONFIDENCE INTERVALS
-  a <- 0.05 #for harm Copas et al use 99% conf level
+  a <- sign_level #for harm Copas et al use 99% conf level
   #Unadjusted
   #fisher_info.unadjusted <- solve(-fit.unadjusted$hessian)
   #s.unadjusted <- sqrt(diag(fisher_info.unadjusted)[1])
@@ -156,10 +306,20 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot){
   width <- abs(ci[1]-ci[2])
 
 
-  return(list(width.adj = width,
+  return(list(
               mle.unadjusted = mle.unadjusted,
-              mle.adjusted = mle))
+              se.unadjusted = s.unadjusted,
+              width.unadjusted = width.unadjusted,
+              ci.unadjusted = ci.unadjusted,
+
+              mle.adjusted = mle,
+              se.adjusted = s,
+              width.adjusted = width,
+              ci.adjusted = ci))
 
 
 
 }
+
+
+
