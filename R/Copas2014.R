@@ -1,6 +1,6 @@
 
 
-Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
+Copas2014 <- function(p_vals, a=NULL, c=NULL, mu1=NULL, mu2=NULL, sd1=NULL, sd2=NULL, n1, n2, ntot, sign_level, init_param){
 
   p1 <- p_vals[1]
   p2 <- p_vals[2]
@@ -8,6 +8,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
   #Significance
   z_alpha <- qnorm(1-sign_level/2)
 
+  if (!is.null(a) & !is.null(c)){
   #Reported outcomes
   #Indecies where we don't have low/high, i.e., reported outcomes
   #If we turn C into numeric, the low/high (unreported) become NA
@@ -54,7 +55,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
   #Check which are significant and which are not
   #we divide into the reported y (logRR) which are significant and those which are not
-  y_S <- y[which(abs(y) >= z_alpha*s)]
+  y_S <- y[which(abs(y) > z_alpha*s)]
   y_s <- y[which(abs(y) <= z_alpha*s)]
 
 
@@ -66,6 +67,47 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
   #K value based on the reported studies
   k <- sum(1/(s2))/sum((n1_rep + n2_rep))
 
+  } else if (!is.null(mu1) & !is.null(mu2) & !is.null(sd1) & !is.null(sd2)){
+
+
+    Rep_index <- which(!is.na(as.numeric(mu1)))
+    HR_index <- which(mu1 == "high")
+    LR_index <- which(mu1 == "low")
+
+    #Unreported study sizes, we might have info from n1,n2 or just the total
+    n_HR <- as.numeric(ntot[HR_index])
+    n_LR <- as.numeric(ntot[LR_index])
+
+    #mu1,mu2,n1,n2,n values for the reported studies
+    mu1_rep <- as.numeric(mu1[Rep_index])
+    mu2_rep <- as.numeric(mu2[Rep_index])
+    sd1_rep <- as.numeric(sd1[Rep_index])
+    sd2_rep <- as.numeric(sd2[Rep_index])
+    n1_rep <- as.numeric(n1[Rep_index])
+    n2_rep <- as.numeric(n2[Rep_index])
+
+    #How many studies are reported?
+    N_rep <- length(Rep_index)
+
+    #Differenece in means
+    #Standard errors given
+    y <- mu1_rep - mu2_rep
+    s <- sqrt((as.numeric(sd1_rep)^2)/(as.numeric(n1_rep)) + (as.numeric(sd2_rep)^2)/(as.numeric(n2_rep)))
+    s2 <- s^2
+
+    #check which are significant and which are not
+    #we divide into the reported y (logRR) which are significant and those which are not
+    y_S <- y[which(abs(y) > z_alpha*s)]
+    y_s <- y[which(abs(y) <= z_alpha*s)]
+
+    N_rep_s <- length(y_s)
+
+    k <- sum(1/(s2))/sum((n1_rep + n2_rep))
+
+  } else {
+
+    return("Error: invalid inputs. Input either a and c values or y1,sd1 and y2,sd2 values.")
+  }
 
   #UNADJUSTED log-likelihood
   loglik.unadjusted <- function(param, y, s2, N_rep, N_rep_s){
@@ -76,6 +118,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
     beta <- param[4]
 
     f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
+
     sum(log(f)) +  N_rep*log(alpha) + #REPORTED
       N_rep_s*log(beta) #REPORTED AND NOT SIGNIFICANT
 
@@ -87,7 +130,9 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
                           N_rep=N_rep, N_rep_s=N_rep_s,
                           #method = "BFGS",
                           method =  "L-BFGS-B",
-                          lower = c(-10, 0, 0, 0),
+                          lower = c(-10, 0.01, 0.01, 0.01),
+                          upper = c(10, 1,1,1),
+                          #method="Nelder-Mead",
                           control = list(fnscale = -1),
                           hessian=TRUE)
 
@@ -147,7 +192,8 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
                method =  "L-BFGS-B",
-               lower = c(-10, 0, 0, 0),
+               lower = c(-10, 0.001, 0.001, 0.001),
+               upper = c(10, 20,1,1),
                control = list(fnscale = -1),
                hessian=TRUE)
 
@@ -156,6 +202,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
 
   } else if (length(HR_index)>0 & length(LR_index)==0){ #We have HR but not LR
+
 
 
   #Imputed variances for the HR studies
@@ -194,14 +241,16 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_s=N_rep_s,
                method =  "L-BFGS-B",
-               lower = c(-10, 0, 0, 0),
                control = list(fnscale = -1),
+               lower = c(-5, 0.05, 0.05, 0.05),
+               upper = c(10, 10, 1, 1),
                hessian=TRUE)
 
   mle <- fit$par[1]
   val <- fit$value
 
   } else if (length(HR_index)==0 & length(LR_index)>0){ #We have LR bur not HR
+
 
 
     #Imputed variances for th LR studies
@@ -240,7 +289,8 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
 
     fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
                  method =  "L-BFGS-B",
-                 lower = c(-10, 0, 0, 0),
+                 lower = c(-10, 0.01, 0.01, 0.01),
+                 upper = c(10, 1,1,1),
                  control = list(fnscale = -1),
                  hessian=TRUE)
 
@@ -281,7 +331,8 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
                #method = "BFGS",
                method =  "L-BFGS-B",
-               lower = c(-10, 0.00001, 0.00001, 0.0001),
+               lower = c(-5, 0.01, 0.01, 0.01),
+               upper = c(10, 10,1,1),
                control = list(fnscale = -1),
                hessian=TRUE)
 
@@ -306,7 +357,7 @@ Copas2014 <- function(p_vals, a, c, n1, n2, ntot, sign_level, init_param){
   width <- abs(ci[1]-ci[2])
 
 
-  return(list(
+  return(list(fit$par[2],
               mle.unadjusted = mle.unadjusted,
               se.unadjusted = s.unadjusted,
               width.unadjusted = width.unadjusted,
