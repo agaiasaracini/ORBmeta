@@ -8,10 +8,10 @@
 
 library(rootSolve)
 
-feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
+feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, true.SE=NULL) {
 
-  #Indecies where we have the reported outcomes (not high nor NA=low) and the HR outcomes
-  rep_index <- which(!is.na(a) & a != "high")
+  #Indecies where we have the reported outcomes (not high nor low) and the HR outcomes
+  rep_index <- which(a != "high" & a != "low")
   HR_index <- which(a == "high")
 
   # a,c,n1,n2 values for the reported outcomes
@@ -73,10 +73,11 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
   init_param <- init_param
 
   # maximize unadjusted function optim() L-BFGS-B
-  fit.u <- optim(init_params, f.u, logRR = logRR, sigma_squared = sigma_squared,
+  fit.u <- optim(init_param, f.u, logRR = logRR, sigma_squared = sigma_squared,
                  method = "Brent",
                  control = list(fnscale = -1),
-                 #lower = c(-5),
+                 lower = -10,
+                 upper = 10,
                  hessian=TRUE)
 
   mle.u <- fit.u$par[1] #MLE ESTIMATE
@@ -87,23 +88,31 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
     # adjusted likelihood function for harm to be maximized
     f.adj.b <- function(mu, logRR, sigma_squared, sigma_squared_imputed) {
 
-      z_alpha <- qnorm(1 - alpha/2)
-      -(1/2)*sum((((logRR - mu )^2)/(sigma_squared))) + sum(log(pnorm(z_alpha - mu/sqrt(sigma_squared_imputed))))
-                                                                  #- pnorm(-z_alpha -mu/sqrt(sigma_squared_imputed))))
+      z_alpha <- qnorm(1 - alpha_ben/2)
+      -(1/2)*sum((((logRR - mu )^2)/(sigma_squared))) +
+
+        if (!is.null(sigma_squared_imputed)){
+        sum(log(pnorm(z_alpha - mu/sqrt(sigma_squared_imputed))))
+               #- pnorm(-z_alpha -mu/sqrt(sigma_squared_imputed))))
+        } else {
+
+          0
+        }
 
     }
 
-    fit.adj.b <- optim(init_params, f.adj.b, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
+    fit.adj.b <- optim(init_param, f.adj.b, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
                        method = "Brent",
                        control = list(fnscale = -1),
-                      # lower = c(-5),
+                       lower = -10,
+                       upper=10,
                        hessian=TRUE)
 
     mle.b <- fit.adj.b$par[1]
 
     #Confidence Intervals WALD
     #Wald CI based on Hessian output of optim() function
-    a <- alpha
+    a <- alpha_ben
     #Unadjsted
     fisher_info.u <- solve(-fit.u$hessian)
     s.u <- sqrt(diag(fisher_info.u))
@@ -114,7 +123,7 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
     ci.u.adj.b <- fit.adj.b$par + qnorm(c(a/2, 1-a/2)) * s.adj.b
 
     #Likelihood Ratio Confidence Intervals
-    z <- qchisq(1-alpha, df=1) #3.841
+    z <- qchisq(1-a, df=1) #3.841
 
     #Copas et al. 2019
     #f.u.CI <- fucntion(mu){
@@ -130,11 +139,12 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
     }
 
     #From Held's book solutions likelihood inference
+    #From Held's book solutions likelihood inference
     LR.lower.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
-                              interval=c(-10,10))[1]
+                          interval=c(-10,mle.u))$root
 
-    LR.upper.u <- uniroot.all(Vectorize(function(mu){LRstat.u(mu) - z}),
-                              interval=c(-10,10))[2]
+    LR.upper.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
+                          interval=c(mle.u, 10))$root
 
 
     #Benefit Adjusted
@@ -144,12 +154,14 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
 
     }
 
-    LR.lower.b <- uniroot.all(Vectorize(function(mu){LRstat.b(mu) - z}),
-                              interval=c(-10,10))[1]
+    LR.lower.b <- uniroot(Vectorize(function(mu){LRstat.b(mu) - z}),
+                          interval=c(-10,mle.b))$root
 
-    LR.upper.b <- uniroot.all(Vectorize(function(mu){LRstat.b(mu) - z}),
-                              interval=c(-10,10))[2]
+    LR.upper.b <- uniroot(Vectorize(function(mu){LRstat.b(mu) - z}),
+                          interval=c(mle.b, 10))$root
 
+
+    p_val <- pnorm(logRR / sigma_squared, lower.tail = FALSE) #one sided pvalue benefit
 
     return(list(RR_unadjusted = mle.u,
                 CI_unadjusted_low = LR.lower.u,
@@ -164,7 +176,9 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
                 CI_adjusted_benefit_up = LR.upper.b,
 
                 CI_adjusted_benefit_low_WALD = ci.u.adj.b[1],
-                CI_adjusted_benefit_up_WALD = ci.u.adj.b[2]
+                CI_adjusted_benefit_up_WALD = ci.u.adj.b[2],
+                logRR = logRR,
+                p_value = p_val
 
 
     ))
@@ -175,20 +189,28 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
     # adjusted likelihood function for benefit to be maximized
     f.adj.h <- function(mu, logRR, sigma_squared, sigma_squared_imputed) {
 
-      z_alpha <- qnorm(1 - 0.05/2)
-      -(1/2)*sum((((logRR - mu )^2)/(sigma_squared))) + sum(log(pnorm(mu/sqrt(sigma_squared_imputed))))
+      z_alpha <- qnorm(1 - alpha_harm/2)
+      -(1/2)*sum((((logRR - mu )^2)/(sigma_squared))) +
+
+        if (!is.null(sigma_squared_imputed)){
+        sum(log(pnorm(mu/sqrt(sigma_squared_imputed))))
+
+        } else {
+          0
+        }
     }
 
-    fit.adj.h <- optim(init_params, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
-                       method = "L-BFGS-B",
+    fit.adj.h <- optim(init_param, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
+                       method = "Brent",
                        control = list(fnscale = -1),
-                       lower = c(-5),
+                       lower = -10,
+                       upper=10,
                        hessian=TRUE)
 
     mle.h <- fit.adj.h$par[1]
 
     #CONFIDENCE INTERVALS WALD
-    a <- 0.01 #for harm Copas et al use 99% conf level
+    a <- alpha_harm #for harm Copas et al use 99% conf level
     #Unadjusted
     fisher_info.u <- solve(-fit.u$hessian)
     s.u <- sqrt(diag(fisher_info.u))
@@ -201,7 +223,7 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
 
 
     #Likelihood Ratio Confidence Intervals
-    z <- qchisq(0.99, df=1) #Copas et al use alt
+    z <- qchisq(1-alpha_harm, df=1) #Copas et al use alt
 
     #Unadjsuted
     LRstat.u <- function(mu){
@@ -211,11 +233,11 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
     }
 
     #From Held's book solutions likelihood inference
-    LR.lower.u <- uniroot.all(Vectorize(function(mu){LRstat.u(mu) - z}),
-                              interval=c(-10, 10))[1]
+    LR.lower.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
+                          interval=c(-10,mle.u))$root
 
-    LR.upper.u <- uniroot.all(Vectorize(function(mu){LRstat.u(mu) - z}),
-                              interval=c(-10, 10))[2]
+    LR.upper.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
+                          interval=c(mle.u, 10))$root
 
     #harm djusted
     LRstat.h <- function(mu){
@@ -224,11 +246,13 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
 
     }
 
-    LR.lower.h <- uniroot.all(Vectorize(function(mu){LRstat.h(mu) - z}),
-                              interval=c(-10,10))[1]
+    LR.lower.h <- uniroot(Vectorize(function(mu){LRstat.h(mu) - z}),
+                          interval=c(-10,mle.u))$root
 
-    LR.upper.h <- uniroot.all(Vectorize(function(mu){LRstat.h(mu) - z}),
-                              interval=c(-10,10))[2]
+    LR.upper.h <- uniroot(Vectorize(function(mu){LRstat.h(mu) - z}),
+                          interval=c(mle.u, 10))$root
+
+    p_val = pnorm(logRR / sigma_squared, lower.tail = FALSE)
 
     return(list(RR_unadjusted = mle.u,
 
@@ -244,7 +268,9 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha, true.SE=NULL) {
                 CI_adjusted_harm_up = LR.upper.h,
 
                 CI_adjusted_harm_low_WALD = ci.u.adj.h[1],
-                CI_adjusted_harm_up_WALD = ci.u.adj.h[2]
+                CI_adjusted_harm_up_WALD = ci.u.adj.h[2],
+                logRR = logRR,
+                p_value = p_val
 
 
     ))
