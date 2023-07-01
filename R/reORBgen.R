@@ -596,8 +596,8 @@ reORBgen <- function(a=NULL, c=NULL,
                 LR_mu_unadjusted_up = upperBound.u,
 
 
-                CI_unadjusted_low_WALD = exp(ci.u)[1],
-                CI_unadjusted_up_WALD = exp(ci.u)[2],
+                CI_unadjusted_low_WALD = ci.u[1],
+                CI_unadjusted_up_WALD = ci.u[2],
 
                 mu_adjusted_harm = mle.h,
                 LR_mu_adjusted_low = lowerBound.h,
@@ -611,8 +611,8 @@ reORBgen <- function(a=NULL, c=NULL,
                 sigma_squared_average_adjusted = sigma_squared_average_adjusted,
 
 
-                CI_adjusted_harm_low_WALD = exp(ci.u.adj.h)[1],
-                CI_adjusted_harm_up_WALD = exp(ci.u.adj.h)[2]
+                CI_adjusted_harm_low_WALD = ci.u.adj.h[1],
+                CI_adjusted_harm_up_WALD = ci.u.adj.h[2]
 
     ))
 
