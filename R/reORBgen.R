@@ -587,7 +587,7 @@ reORBgen <- function(a=NULL, c=NULL,
 
     return(list(mu_unadjusted = mle.u,
                 LR_mu_unadjusted_low_h = lowerBound.u,
-                LR_mu_unadjusted_up_h = upperBound.y,
+                LR_mu_unadjusted_up_h = upperBound.u,
 
 
                 CI_unadjusted_low_WALD = exp(ci.u)[1],
