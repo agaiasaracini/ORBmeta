@@ -77,6 +77,7 @@ reORBgen <- function(a=NULL, c=NULL,
     N_rep <- length(Rep_index)
 
     #Unreported study sizes, we might have info from n1,n2 or just the total
+    ntot <- as.numeric(n1) + as.numeric(n2)
     n_HR <- as.numeric(ntot[HR_index])
 
 
@@ -99,6 +100,7 @@ reORBgen <- function(a=NULL, c=NULL,
     HR_index <- which(mu1 == "high")
 
     #Unreported study sizes, we might have info from n1,n2 or just the total
+    ntot <- as.numeric(n1) +as.numeric(n2)
     n_HR <- as.numeric(ntot[HR_index])
 
     #mu1,mu2,n1,n2,n values for the reported studies
@@ -319,8 +321,8 @@ reORBgen <- function(a=NULL, c=NULL,
     }
 
     eps <- sqrt(.Machine$double.eps)
-    lowerBound.u <- uniroot(f, interval = c(-1 + eps, mle.u), logRR=logRR, sigma_squared=sigma_squared)$root
-    upperBound.u <- uniroot(f, interval = c( mle.u, 1 - eps), logRR=logRR, sigma_squared=sigma_squared)$root
+    lowerBound.u <- uniroot(f, interval = c(-10, mle.u), logRR=logRR, sigma_squared=sigma_squared)$root
+    upperBound.u <- uniroot(f, interval = c( mle.u, 10), logRR=logRR, sigma_squared=sigma_squared)$root
 
 
     #Adjusted benefit
@@ -361,10 +363,10 @@ reORBgen <- function(a=NULL, c=NULL,
       pl.b(mu, logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed) - pl.b(mle.b, logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed) + 1/2*qchisq(0.95, df=1)
     }
 
-    lowerBound.b <- uniroot(f.b, interval = c(-0.5, mle.b), logRR=logRR,
+    lowerBound.b <- uniroot(f.b, interval = c(-010, mle.b), logRR=logRR,
                                 sigma_squared=sigma_squared,
                                 sigma_squared_imputed=sigma_squared_imputed)$root
-    upperBound.b <- uniroot(f.b, interval = c(mle.b, 0.5), logRR=logRR,
+    upperBound.b <- uniroot(f.b, interval = c(mle.b, 10), logRR=logRR,
                                 sigma_squared=sigma_squared,
                                 sigma_squared_imputed = sigma_squared_imputed)$root
 
@@ -530,8 +532,8 @@ reORBgen <- function(a=NULL, c=NULL,
       pl.u(mu, logRR=logRR, sigma_squared=sigma_squared) - pl.u(mle.u, logRR=logRR, sigma_squared=sigma_squared) + 1/2*qchisq(0.95, df=1)
     }
 
-    lowerBound.u <- uniroot(f, interval = c(-0.5, mle.u), logRR=logRR, sigma_squared=sigma_squared)$root
-    upperBound.u <- uniroot(f, interval = c(mle.u, 0.5), logRR=logRR, sigma_squared=sigma_squared)$root
+    lowerBound.u <- uniroot(f, interval = c(-10, mle.u), logRR=logRR, sigma_squared=sigma_squared)$root
+    upperBound.u <- uniroot(f, interval = c(mle.u, 10), logRR=logRR, sigma_squared=sigma_squared)$root
 
 
     ll.h <- function(mu, tau_squared, logRR, sigma_squared, sigma_squared_imputed) {
@@ -562,8 +564,8 @@ reORBgen <- function(a=NULL, c=NULL,
       pl.h(mu, logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed) - pl.h(mle.h, logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed) + 1/2*qchisq(0.99, df=1)
     }
 
-    lowerBound.h <- uniroot(f.h, interval = c(-0.5, mle.h), logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed)$root
-    upperBound.h <- uniroot(f.h, interval = c(mle.h, 0.5), logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed)$root
+    lowerBound.h <- uniroot(f.h, interval = c(-10, mle.h), logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed)$root
+    upperBound.h <- uniroot(f.h, interval = c(mle.h, 10), logRR=logRR, sigma_squared=sigma_squared, sigma_squared_imputed = sigma_squared_imputed)$root
 
 
 
