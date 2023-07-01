@@ -586,16 +586,16 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
     return(list(mu_unadjusted = mle.u,
-                LR_mu_unadjusted_low_h = lowerBound.u,
-                LR_mu_unadjusted_up_h = upperBound.u,
+                LR_mu_unadjusted_low = lowerBound.u,
+                LR_mu_unadjusted_up = upperBound.u,
 
 
                 CI_unadjusted_low_WALD = exp(ci.u)[1],
                 CI_unadjusted_up_WALD = exp(ci.u)[2],
 
                 mu_adjusted_harm = mle.h,
-                LR_mu_adjusted_low_h = lowerBound.h,
-                LR_mu_adjusted_up_h = upperBound.h,
+                LR_mu_adjusted_low = lowerBound.h,
+                LR_mu_adjusted_up = upperBound.h,
 
 
                 tau_squared_unadjsuted = mle.tau,
@@ -614,12 +614,12 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
       return(list(mu_unadjusted = mle.u,
-                  LR_mu_unadjusted_low_h = lowerBound.u,
-                  LR_mu_unadjusted_up_h = upperBound.y,
+                  LR_mu_unadjusted_low = lowerBound.u,
+                  LR_mu_unadjusted_up = upperBound.y,
 
                   mu_adjusted_harm = mle.h,
-                  LR_mu_adjusted_low_h = lowerBound.h,
-                  LR_mu_adjusted_up_h = upperBound.h,
+                  LR_mu_adjusted_low = lowerBound.h,
+                  LR_mu_adjusted_up = upperBound.h,
 
 
                   tau_squared_unadjsuted = mle.tau,
