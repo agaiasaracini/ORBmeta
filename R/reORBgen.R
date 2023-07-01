@@ -308,7 +308,9 @@ reORBgen <- function(a=NULL, c=NULL,
       for (i in seq_along(mu)) { #for all these values of mu
         optimResult <- optim(par = init_param[2],
                              fn = function(tau_squared) ll.u(mu[i], tau_squared, logRR=logRR, sigma_squared = sigma_squared),
-                             method = "Nelder-Mead",
+                             method = "Brent",
+                             lower= 0.0001,
+                             upper=10,
                              control = list(fnscale = -1))
 
         res[i] <- optimResult$value
@@ -349,7 +351,9 @@ reORBgen <- function(a=NULL, c=NULL,
                                                              logRR=logRR,
                                                              sigma_squared = sigma_squared,
                                                              sigma_squared_imputed = sigma_squared_imputed),
-                             method = "Nelder-Mead",
+                             method = "Brent",
+                             lower=0.00001,
+                             upper=10,
 
                              control = list(fnscale = -1))
 
@@ -519,8 +523,9 @@ reORBgen <- function(a=NULL, c=NULL,
       for (i in seq_along(mu)) { #for all these values of mu
         optimResult <- optim(par = init_param[2],
                              fn = function(tau_squared) ll.u(mu[i], tau_squared, logRR=logRR, sigma_squared = sigma_squared),
-                             method = "Nelder-Mead",
-                             #lower= 0,
+                             method = "Brent",
+                             lower= 0.00001,
+                             upper=10,
                              control = list(fnscale = -1))
 
         res[i] <- optimResult$value
@@ -551,8 +556,9 @@ reORBgen <- function(a=NULL, c=NULL,
       for (i in seq_along(mu)) { #for all these values of mu
         optimResult <- optim(par = init_param[2],
                              fn = function(tau_squared) ll.h(mu[i], tau_squared, logRR=logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed),
-                             method = "L-BFGS-B",
-                             lower= 0,
+                             method = "Brent",
+                             lower= 0.00001,
+                             upper = 10,
                              control = list(fnscale = -1))
 
         res[i] <- optimResult$value
