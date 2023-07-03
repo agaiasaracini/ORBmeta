@@ -8,12 +8,22 @@ ORBsens <- function(p_vals=NULL,
                       ntot,
                       sign_level,
                       init_param,
-                      outcome){
+                      outcome,
+                    opt_method,
+                    lower = c(-10, 0.05, 0.05, 0.05),
+                    upper = c(10, 10,1,1)){
 
   p1 <- p_vals[1]
   p2 <- p_vals[2]
   eta1 <- eta_vals[1]
   eta2 <- eta_vals[2]
+
+
+  method <- opt_method
+
+  #mu, tau squared, alpha, beta/gamma
+  lower <- lower
+  upper <- upper
 
 
   #Significance
@@ -172,15 +182,27 @@ ORBsens <- function(p_vals=NULL,
 
   init_param <- init_param
 
+  if (method == "L-BFGS-B"){
   fit.unadjusted <- optim(init_param, loglik.unadjusted,  y=y, s2=s2,
                           N_rep=N_rep, N_rep_s=N_rep_s,
                           #method = "BFGS",
-                          method =  "L-BFGS-B",
-                          lower = c(-10, 0.01, 0.01, 0.01),
-                          upper = c(10, 1,1,1),
+                          method =  method,
+                          lower = lower,
+                          upper = upper,
                           #method="Nelder-Mead",
                           control = list(fnscale = -1),
                           hessian=TRUE)
+  } else {
+
+    fit.unadjusted <- optim(init_param, loglik.unadjusted,  y=y, s2=s2,
+                            N_rep=N_rep, N_rep_s=N_rep_s,
+                            #method = "BFGS",
+                            method =  method,
+                            #method="Nelder-Mead",
+                            control = list(fnscale = -1),
+                            hessian=TRUE)
+
+  }
 
 
   mle.unadjusted <- fit.unadjusted$par[1]
@@ -238,12 +260,21 @@ ORBsens <- function(p_vals=NULL,
 
   init_param <- init_param
 
+  if (method == "L-BFGS-B"){
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
-               method =  "L-BFGS-B",
-               lower = c(-10, 0.001, 0.001, 0.001),
-               upper = c(10, 20,1,1),
+               method =  method,
+               lower = lower,
+               upper = upper,
                control = list(fnscale = -1),
                hessian=TRUE)
+  } else {
+
+    fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
+                 method =  method,
+                 control = list(fnscale = -1),
+                 hessian=TRUE)
+
+  }
 
   mle <- fit$par[1]
   val <- fit$value
@@ -274,8 +305,8 @@ ORBsens <- function(p_vals=NULL,
 
     f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
 
-    Q_HR <- pnorm((z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2))) -
-      pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
+    Q_HR <- pnorm((z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
+      #pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
 
 
     sum(log(f)) +
@@ -287,12 +318,20 @@ ORBsens <- function(p_vals=NULL,
 
   init_param <- init_param
 
+  if (method == "L-BFGS-B"){
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_s=N_rep_s,
-               method =  "L-BFGS-B",
+               method =  method,
                control = list(fnscale = -1),
-               lower = c(-5, 0.05, 0.05, 0.05),
-               upper = c(10, 10, 1, 1),
+               lower = lower,
+               upper = upper,
                hessian=TRUE)
+  } else {
+
+    fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_s=N_rep_s,
+                 method =  method,
+                 control = list(fnscale = -1),
+                 hessian=TRUE)
+  }
 
   mle <- fit$par[1]
   val <- fit$value
@@ -335,12 +374,20 @@ ORBsens <- function(p_vals=NULL,
 
     init_param <- init_param
 
+    if (method == "L-BFGS-B"){
     fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
-                 method =  "L-BFGS-B",
-                 lower = c(-10, 0.01, 0.01, 0.01),
-                 upper = c(10, 1,1,1),
+                 method =  method,
+                 lower = lower,
+                 upper = upper,
                  control = list(fnscale = -1),
                  hessian=TRUE)
+    } else {
+
+      fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_s=N_rep_s,
+                   method =  method,
+                   control = list(fnscale = -1),
+                   hessian=TRUE)
+    }
 
     mle <- fit$par[1]
     val <- fit$value
@@ -376,13 +423,23 @@ ORBsens <- function(p_vals=NULL,
 
   init_param <- init_param
 
+  if (method == "L-BFGS-B"){
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
                #method = "BFGS",
-               method =  "L-BFGS-B",
-               lower = c(-5, 0.01, 0.01, 0.01),
-               upper = c(10, 10,1,1),
+               method =  method,
+               lower = lower,
+               upper = upper,
                control = list(fnscale = -1),
                hessian=TRUE)
+  } else {
+
+    fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
+                 #method = "BFGS",
+                 method =  method,
+                 control = list(fnscale = -1),
+                 hessian=TRUE)
+
+  }
 
 
   mle <- fit$par[1]
@@ -460,13 +517,21 @@ ORBsens <- function(p_vals=NULL,
 
       init_param <- init_param
 
+      if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_P=N_rep_P,
-                   method =  "L-BFGS-B",
+                   method =  method,
                   #method="Nelder-Mead",
-                   lower = c(-10, 0.001, 0.001, 0.001),
-                   upper = c(10, 20,1,1),
+                   lower = lower,
+                   upper = upper,
                    control = list(fnscale = -1),
                    hessian=TRUE)
+      } else {
+        fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_P=N_rep_P,
+                     method =  method,
+                     control = list(fnscale = -1),
+                     hessian=TRUE)
+
+      }
 
       mle <- fit$par[1]
       val <- fit$value
@@ -510,12 +575,20 @@ ORBsens <- function(p_vals=NULL,
 
       init_param <- init_param
 
+      if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_P=N_rep_P,
-                   method =  "L-BFGS-B",
+                   method =  method,
                    control = list(fnscale = -1),
-                   lower = c(-5, 0.05, 0.05, 0.05),
-                   upper = c(10, 10, 1, 1),
+                   lower = lower,
+                   upper = upper,
                    hessian=TRUE)
+      } else {
+        fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, N_rep=N_rep, N_rep_P=N_rep_P,
+                     method =  method,
+                     control = list(fnscale = -1),
+                     hessian=TRUE)
+
+      }
 
       mle <- fit$par[1]
       val <- fit$value
@@ -557,12 +630,20 @@ ORBsens <- function(p_vals=NULL,
 
       init_param <- init_param
 
+      if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_P=N_rep_P,
-                   method =  "L-BFGS-B",
-                   lower = c(-10, 0.01, 0.01, 0.01),
-                   upper = c(10, 1,1,1),
+                   method =  method,
+                   lower = lower,
+                   upper = upper,
                    control = list(fnscale = -1),
                    hessian=TRUE)
+      } else {
+        fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_P=N_rep_P,
+                     method =  method,
+                     control = list(fnscale = -1),
+                     hessian=TRUE)
+
+      }
 
       mle <- fit$par[1]
       val <- fit$value
@@ -598,13 +679,22 @@ ORBsens <- function(p_vals=NULL,
 
       init_param <- init_param
 
+      if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eat2=eta2, y=y, s2=s2, N_rep=N_rep, N_rep_P=N_rep_P,
                    #method = "BFGS",
-                   method =  "L-BFGS-B",
-                   lower = c(-5, 0.01, 0.01, 0.01),
-                   upper = c(10, 10,1,1),
+                   method =  method,
+                   lower = lower,
+                   upper = upper,
                    control = list(fnscale = -1),
                    hessian=TRUE)
+      } else {
+        fit <- optim(init_param, loglik, eta1=eta1, eat2=eta2, y=y, s2=s2, N_rep=N_rep, N_rep_P=N_rep_P,
+                     #method = "BFGS",
+                     method =  method,
+                     control = list(fnscale = -1),
+                     hessian=TRUE)
+
+      }
 
 
       mle <- fit$par[1]
