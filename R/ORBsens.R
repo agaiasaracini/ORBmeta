@@ -306,7 +306,7 @@ ORBsens <- function(p_vals=NULL,
     f <- (1/sqrt(2*pi*(s2 + t2)))*exp((-1/2)*(((y - theta)^2)/(s2 + t2))) #reported studies
 
     Q_HR <- pnorm((z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
-      #pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
+      -pnorm((-z_alpha*sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR + t2)))
 
 
     sum(log(f)) +
