@@ -28,7 +28,8 @@ reORBgen <- function(a=NULL, c=NULL,
                      n1, n2, outcome, init_param, alpha_ben=NULL, alpha_harm=NULL,
                      true.SE=NULL, LR.CI = FALSE,
                      Wald.CI = FALSE,
-                     selection.benefit = "Copas.oneside") {
+                     selection.benefit = "Copas.oneside",
+                     weight_param=15) {
 
   #Can take in binary counts and calculate log RR: a, c
   #Means and calculate differences in means: y1, y2, sd1, sd2
@@ -44,9 +45,12 @@ reORBgen <- function(a=NULL, c=NULL,
   #Ideally have
   #Copas.twoside from original paper
   #Copas.oneside DEFAULT
-  #Exponential.piecewise
-  #Sigmoid.continuous
+  #Neg.exp.piecewise
+  #Sigmoid.cont
   sel.ben <- selection.benefit
+
+  #If we have Exponential.piecewise or Sigmoid.continuous, we also need a weight parameter
+  w <- weight_param
 
   if (Wald.CI){
     my.hessian <- TRUE
@@ -217,29 +221,71 @@ reORBgen <- function(a=NULL, c=NULL,
       tau_squared <- params[2]
       z_alpha <- qnorm(1-alpha_ben/2)
 
+      #The contribution from the reported studies is always present
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
 
 
         if (length(sigma_squared_imputed) > 0) {
 
-          #sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
-          #	integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed),
-          #						lower = -10, upper = 10, subdivisions = 200, stop.on.error=FALSE)$value
-          #})))
+          if (sel.ben == "Copas.oneside"){
 
-          sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
 
-                  -
-                    if (sel.ben == "Copas.twoside"){
+          } else if (sel.ben == "Copas.twoside") {
 
-                      pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+                    - pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
 
-                  } else {
+          } else if (sel.ben == "Neg.exp.piecewise") {
 
-                    0
-                  }
+            #Probability of unreporting
+            piece_wise_neg_exp <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1,
+                     exp(-w * (y - z_alpha*sqrt(sigma_squared_imputed))))
+            }
 
-          ))
+            #Integrand
+            integrand <- function(y, mu, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- piece_wise_neg_exp(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else if (sel.ben == "Sigmoid.cont") {
+
+            #Probability of unreporting
+            cont_sigmoid <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))),
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))))
+
+            }
+
+            #Integrand
+            integrand <- function(y, mu, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- cont_sigmoid(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else {
+
+            stop("Error: Invalid weight function specified. ")
+             }
+
 
 
         } else {
@@ -293,23 +339,74 @@ reORBgen <- function(a=NULL, c=NULL,
       z_alpha <- qnorm(1 - alpha_ben/2)
 
 
-      (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2))+
+      (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2)) +
 
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))
+        if (length(sigma_squared_imputed) > 0) {
 
-                -
-                  if (sel.ben == "Copas.twoside"){
+          if (sel.ben == "Copas.oneside"){
 
-                    pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
 
-                  } else {
+          } else if (sel.ben == "Copas.twoside") {
 
-                    0
-                  }
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))
+                    - pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
 
-        ))
+          } else if (sel.ben == "Neg.exp.piecewise") {
 
-                #- pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
+            #Probability of unreporting
+            piece_wise_neg_exp <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1,
+                     exp(-w * (y - z_alpha*sqrt(sigma_squared_imputed))))
+            }
+
+            #Integrand
+            integrand <- function(y, mu.REML, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- piece_wise_neg_exp(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu.REML)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu.REML, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else if (sel.ben == "Sigmoid.cont") {
+
+            #Probability of unreporting
+            cont_sigmoid <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))),
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))))
+
+            }
+
+            #Integrand
+            integrand <- function(y, mu.REML, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- cont_sigmoid(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu.REML)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu.REML, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else {
+
+            stop("Error: Invalid weight function specified. ")
+          }
+
+
+
+        } else {
+          0  # Return 0 if sigma_squared_imputed is empty
+        }
 
 
     }
@@ -371,20 +468,77 @@ reORBgen <- function(a=NULL, c=NULL,
 
       z_alpha <- qnorm(1-alpha_ben/2)
 
+      #The contribution from the reported studies is always present
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
 
-                -
-                  if (sel.ben == "Copas.twoside"){
 
-                    pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+        if (length(sigma_squared_imputed) > 0) {
 
-                  } else {
+          if (sel.ben == "Copas.oneside"){
 
-                    0
-                  }
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
 
-        ))
+          } else if (sel.ben == "Copas.twoside") {
+
+            sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+                    - pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+
+          } else if (sel.ben == "Neg.exp.piecewise") {
+
+            #Probability of unreporting
+            piece_wise_neg_exp <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1,
+                     exp(-w * (y - z_alpha*sqrt(sigma_squared_imputed))))
+            }
+
+            #Integrand
+            integrand <- function(y, mu, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- piece_wise_neg_exp(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else if (sel.ben == "Sigmoid.cont") {
+
+            #Probability of unreporting
+            cont_sigmoid <- function(y, sigma_squared_imputed, z_alpha) {
+              ifelse(y < sqrt(sigma_squared_imputed)*z_alpha,
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))),
+                     1/(1+exp(w*(y-z_alpha*sqrt(sigma_squared_imputed)))))
+
+            }
+
+            #Integrand
+            integrand <- function(y, mu, tau_squared, sigma_squared_imputed, z_alpha) {
+
+              weight <- cont_sigmoid(y, sigma_squared_imputed, z_alpha)
+              (1 / sqrt(2 * pi * (sigma_squared_imputed + tau_squared))) * exp(-0.5 * ((y - mu)^2 / (sigma_squared_imputed + tau_squared))) * weight
+            }
+
+            #log-lik contribution
+            sum(log(sapply(sigma_squared_imputed, function(sigma_sq_imputed) {
+              integrate(function(y) integrand(y, mu, tau_squared, sigma_sq_imputed, z_alpha),
+                        lower = -20, upper = 20, subdivisions = 200, stop.on.error=FALSE)$value
+            })))
+
+          } else {
+
+            stop("Error: Invalid weight function specified. ")
+          }
+
+
+
+        } else {
+          0  # Return 0 if sigma_squared_imputed is empty
+        }
+
 
 
       }
