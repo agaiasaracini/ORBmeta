@@ -27,11 +27,26 @@ reORBgen <- function(a=NULL, c=NULL,
                      y=NULL, s=NULL,
                      n1, n2, outcome, init_param, alpha_ben=NULL, alpha_harm=NULL,
                      true.SE=NULL, LR.CI = FALSE,
-                     Wald.CI = FALSE) {
+                     Wald.CI = FALSE,
+                     selection.benefit = "Copas.oneside") {
 
   #Can take in binary counts and calculate log RR: a, c
   #Means and calculate differences in means: y1, y2, sd1, sd2
   #Directly normally distributed effect measure: y, s
+
+  #Beneficial outcome:
+  #Significance is assessed based on the two sided test
+  #In the original paper by Copas et al., they use a piece-wise selection function
+  #which has P(unreporting)=1 if not-significant, where they consider two tails
+  #however, more realistic that, if significant in the "wrong" direction,
+  #even less likley to be reported! hence Copas.oneside = default in which we
+  #dont consider the siginficance in the "wrong direction"
+  #Ideally have
+  #Copas.twoside from original paper
+  #Copas.oneside DEFAULT
+  #Exponential.piecewise
+  #Sigmoid.continuous
+  sel.ben <- selection.benefit
 
   if (Wald.CI){
     my.hessian <- TRUE
@@ -212,9 +227,19 @@ reORBgen <- function(a=NULL, c=NULL,
           #						lower = -10, upper = 10, subdivisions = 200, stop.on.error=FALSE)$value
           #})))
 
-          sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+          sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
 
-                  #- pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
+                  -
+                    if (sel.ben == "Copas.twoside"){
+
+                      pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+
+                  } else {
+
+                    0
+                  }
+
+          ))
 
 
         } else {
@@ -270,7 +295,19 @@ reORBgen <- function(a=NULL, c=NULL,
 
       (1/2)*sum(log(w_i)) -(1/2)*log(sum(w_i)) - (1/2)*sum(w_i*((logRR - mu.REML)^2))+
 
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))
+
+                -
+                  if (sel.ben == "Copas.twoside"){
+
+                    pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+
+                  } else {
+
+                    0
+                  }
+
+        ))
 
                 #- pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu.REML)/sqrt(sigma_squared_imputed + tau_squared))))
 
@@ -335,10 +372,22 @@ reORBgen <- function(a=NULL, c=NULL,
       z_alpha <- qnorm(1-alpha_ben/2)
 
       -(1/2)*sum(log(sigma_squared + tau_squared) + ((logRR - mu)^2)/(sigma_squared + tau_squared)) +
-        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared)) ))
+        sum(log(pnorm((z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
 
-                # -pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))))
-    }
+                -
+                  if (sel.ben == "Copas.twoside"){
+
+                    pnorm((-z_alpha*sqrt(sigma_squared_imputed) - mu)/sqrt(sigma_squared_imputed + tau_squared))
+
+                  } else {
+
+                    0
+                  }
+
+        ))
+
+
+      }
 
 
     pl.b <- function(mu, logRR, sigma_squared, sigma_squared_imputed) { #take in vector of mus
