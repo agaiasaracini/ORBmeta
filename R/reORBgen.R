@@ -36,10 +36,15 @@ reORBgen <- function(a=NULL, c=NULL,
                      Wald.CI = FALSE,
                      selection.benefit = "Copas.oneside",
                      weight_param=15,
-                     opt_method=L-BFGS-B,
+                     opt_method="L-BFGS-B",
                      lower = c(-5, 0.00001),
-                     upper = c(5,5)
+                     upper = c(5,5),
+                     low.risk = FALSE
 ) {
+
+  #Default is to ignore the low risk of bias, but if TRUE then we
+  #use all the unreported studies fro adjustment
+  #this supposedly can be done for the two smooth selection functions
 
   #Can take in binary counts and calculate log RR: a, c
   #Means and calculate differences in means: y1, y2, sd1, sd2
@@ -89,7 +94,14 @@ reORBgen <- function(a=NULL, c=NULL,
     #If we turn C into numeric, the low/high (unreported) become NA
     #Where do we have low and were do we have high
     Rep_index <- which(!is.na(as.numeric(a)))
-    HR_index <- which(a == "high")
+
+    if (low.risk == FALSE){
+
+      HR_index <- which(a == "high")
+
+    } else { ##if low.risk=TRUE, we include all unreported studies in the adjustment
+      HR_index <- which(a == "high" | a == "low")
+    }
 
     # a,c,n1,n2, n values for the reported studies
     a_rep <- as.numeric(a[Rep_index])
@@ -138,7 +150,16 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
     Rep_index <- which(!is.na(as.numeric(mu1)))
-    HR_index <- which(mu1 == "high")
+
+    if (low.risk == FALSE){
+
+      HR_index <- which(mu1 == "high")
+
+    } else {
+
+      HR_index <- which(mu1 == "high" | mu1 == "low")
+
+    }
 
     #Unreported study sizes, we might have info from n1,n2 or just the total
     ntot <- as.numeric(n1) +as.numeric(n2)
@@ -168,14 +189,21 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
     #Indecies where we have the reported outcomes and the unreported with high risk (HR)
-    rep_index <- which(!is.na(y) & y != "high")
-    HR_index <- which(y == "high")
+    Rep_index <- which(!is.na(as.numeric(y)))
+
+    if (low.risk == FALSE){
+
+      HR_index <- which(y == "high")
+    } else {
+
+      HR_index <- which(y == "high" | y == "low")
+    }
 
     #Observed treatment effect, standard error^2, and sample sizes of reported outcomes
-    logRR <- as.numeric(y[rep_index])
-    sigma_squared <- (as.numeric(s[rep_index]))^2
-    n1_rep <- as.numeric(n1[rep_index])
-    n2_rep <- as.numeric(n2[rep_index])
+    logRR <- as.numeric(y[Rep_index])
+    sigma_squared <- (as.numeric(s[Rep_index]))^2
+    n1_rep <- as.numeric(n1[Rep_index])
+    n2_rep <- as.numeric(n2[Rep_index])
 
 
     #Total sample size of unreported outcomes
@@ -743,12 +771,22 @@ reORBgen <- function(a=NULL, c=NULL,
     }
 
     #Maximize log-likelihoood
-    fit.adj.h <- optim(init_params, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
-                       method = "L-BFGS-B",
-                       lower = c(-5, 0.000001),
-                       control = list(fnscale = -1),
+    if (method == "L-BFGS-B"){
+      fit.adj.h <- optim(init_params, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
+                         method = method,
+                         lower = lower,
+                         upper = upper,
+                         control = list(fnscale = -1),
 
-                       hessian = my.hessian)
+                         hessian = my.hessian)
+    } else {
+
+      fit.adj.h <- optim(init_params, f.adj.h, logRR = logRR, sigma_squared = sigma_squared, sigma_squared_imputed = sigma_squared_imputed,
+                         method = method,
+                         control = list(fnscale = -1),
+
+                         hessian = my.hessian)
+    }
 
     #Adjusted mu and tau_squared estimates
     mle.h <- fit.adj.h$par[1]
@@ -916,6 +954,7 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
 }
+
 
 
 
