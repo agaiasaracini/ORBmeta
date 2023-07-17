@@ -1,7 +1,7 @@
 
 
 #To simulate one data set of a meta analysis with and without ORB
-simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_control=50, seed, gamma){
+simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_control=50, gamma){
 
   if (!require("biostatUZH")) {
     # If the package is not loaded, try to load it
@@ -14,7 +14,7 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
     }
   }
 
-set.seed(seed)
+
 
 #Number of studies per meta-analysis
 n_studies <- n_studies
@@ -117,7 +117,9 @@ for (i in 1:n_studies){
 
   meta_data_miss$y[random_rows] <- meta_data$y[random_rows]
   meta_data_miss$s[random_rows] <- meta_data$s[random_rows]
-}
+  }
+
+  meta_data_miss$s_true <- meta_data$s
 
   return(meta_data_miss)
 
