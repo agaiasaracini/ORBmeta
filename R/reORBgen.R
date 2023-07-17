@@ -9,7 +9,7 @@
 
 
 #'
-library(rootSolve)
+#library(rootSolve)
 
 #Takes in  a: cell counts treatment
 #          c: cell counts control
@@ -41,6 +41,19 @@ reORBgen <- function(a=NULL, c=NULL,
                      upper = c(5,5),
                      low.risk = FALSE
 ) {
+
+
+  if (!require("rootSolve")) {
+    # If the package is not loaded, try to load it
+    if (!requireNamespace("rootSolve", quietly = TRUE)) {
+      # If the package is not installed, give an error message
+      stop("The 'rootSolve' package is not installed.")
+    } else {
+      # If the package is installed but not loaded, load it
+      library("rootSolve")
+    }
+  }
+
 
   #Default is to ignore the low risk of bias, but if TRUE then we
   #use all the unreported studies fro adjustment
