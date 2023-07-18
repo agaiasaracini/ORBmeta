@@ -62,7 +62,7 @@ low.risk = FALSE
 
 \item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
-\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}.}
+\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}. Only needed for beneficial outcomes.}
 
 \item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
@@ -72,9 +72,9 @@ low.risk = FALSE
 
 \item{Wald.CI}{If TRUE calculates the Wald confidence intervals from the Hessian matrix of the optimization problem.}
 
-\item{selection.benefit}{A character specifying the selection function to be used for the ORB-adjustment of a beneficial outcome. The options are "Copas.twoside", "Copas.oneside" (default), "Neg.exp.piecewise", and "Sigmoid.cont". See details.}
+\item{selection.benefit}{A character specifying the selection function to be used for the ORB-adjustment of a beneficial outcome. The options are "Copas.twoside", "Copas.oneside" (default), "Neg.exp.piecewise", and "Sigmoid.cont". See details. Only needed for beneficial outcomes.}
 
-\item{weight_param}{A positive number to be included if the selection function from selection.benefit is "Neg.exp.piecewise" or "Sigmoid.cont". See details.}
+\item{weight_param}{A positive number to be included if the selection function from selection.benefit is "Neg.exp.piecewise" or "Sigmoid.cont". See details. Only needed for beneficial outcomes.}
 
 \item{opt_method}{A character specifying the method used in the \eqn{\texttt{optim()}} function for the joint optimization of the global treatment effect \eqn{\mu} and the heterogeneity variance \eqn{\tau^2}. For numerical reasons, the reccomended is "L-BFGS-B" when using "Neg.exp.piecewise" or "Sigmoid.cont" as selection.benefit, otherwise "Nelder-Mead".}
 
@@ -82,7 +82,7 @@ low.risk = FALSE
 
 \item{upper}{A vector of length two containing the upper bounds for the optimization problem, if "L-BFGS-B" is used. The first is the upper bound for the global treament effect \eqn{\mu} and the second for the heterogeneity variance \eqn{\tau^2}.}
 
-\item{low.risk}{If TRUE, the studies for which the missing outcome is classified as low risk of bias, i.e., "low", are also included in the adjustment. If FALSE, only the "high" are used, and the "low" are disregarded. It is reccomended to use both "high" and "low" when selection.function is "Neg.exp.piecewise" or "Sigmoid.cont", and only "high" when selection.function is "Copas.twoside" or "Copas.oneside", as originally proposed by Copas et al. (2019). See details.}
+\item{low.risk}{If TRUE, the studies for which the missing outcome is classified as low risk of bias, i.e., "low", are also included in the adjustment. If FALSE, only the "high" are used, and the "low" are disregarded. It is reccomended to use both "high" and "low" when selection.function is "Neg.exp.piecewise" or "Sigmoid.cont", and only "high" when selection.function is "Copas.twoside" or "Copas.oneside", as originally proposed by Copas et al. (2019). See details. Only needed for beneficial outcomes.}
 
 }
 
