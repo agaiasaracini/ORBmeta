@@ -58,13 +58,13 @@ low.risk = FALSE
 
 \item{outcome}{A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").}
 
-\item{init_param}{A vector of length two, containing the values to be used for initialization of the joint optimization of the global treatment effect $mu$ and the between-study heterogeneity $tau^2$ of the random effect model, e.g., initi_param = c(0.1, 0.05).}
+\item{init_param}{A vector of length two, containing the values to be used for initialization of the joint optimization of the global treatment effect \eqn{\mu} and the between-study heterogeneity \eqn{\tau^2} of the random effect model, e.g., initi_param = c(0.1, 0.05).}
 
-\item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., $alpha=0.05$ in Copas et al. (2019).}
+\item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
-\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold qnorm(1-alpha) is used for the selection functions (see details); if FALSE, the two-sided one is used qnorm(1-alpha/2).}
+\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}.}
 
-\item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., $alpha=0.01$ in Copas et al. (2019).}
+\item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
 \item{true.SE}{A vector of the observed standard errors of the treatment effects for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this works if the outcome data is provided as an observed treatment effect y.}
 
@@ -76,11 +76,11 @@ low.risk = FALSE
 
 \item{weight_param}{A positive number to be included if the selection function from selection.benefit is "Neg.exp.piecewise" or "Sigmoid.cont". See details.}
 
-\item{opt_method}{A character specifying the method used in the optim() function for the joint optimization of the global treatment effect $mu$ and the heterogeneity variance $tau^2$. For numerical reasons, the reccomended is "L-BFGS-B" when using "Neg.exp.piecewise" or "Sigmoid.cont" as selection.benefit, otherwise "Nelder-Mead".}
+\item{opt_method}{A character specifying the method used in the \eqn{\texttt{optim()}} function for the joint optimization of the global treatment effect \eqn{\mu} and the heterogeneity variance \eqn{\tau^2}. For numerical reasons, the reccomended is "L-BFGS-B" when using "Neg.exp.piecewise" or "Sigmoid.cont" as selection.benefit, otherwise "Nelder-Mead".}
 
-\item{lower}{A vector of length two containing the lower bounds for the optimization problem, if "L-BFGS-B" is used. The first is the lower bound for the global treament effect $mu$ and the second for the heterogeneity variance $tau^2$. }
+\item{lower}{A vector of length two containing the lower bounds for the optimization problem, if "L-BFGS-B" is used. The first is the lower bound for the global treament effect \eqn{\mu} and the second for the heterogeneity variance \eqn{\tau^2}. }
 
-\item{upper}{A vector of length two containing the upper bounds for the optimization problem, if "L-BFGS-B" is used. The first is the upper bound for the global treament effect $mu$ and the second for the heterogeneity variance $tau^2$.}
+\item{upper}{A vector of length two containing the upper bounds for the optimization problem, if "L-BFGS-B" is used. The first is the upper bound for the global treament effect \eqn{\mu} and the second for the heterogeneity variance \eqn{\tau^2}.}
 
 \item{low.risk}{If TRUE, the studies for which the missing outcome is classified as low risk of bias, i.e., "low", are also included in the adjustment. If FALSE, only the "high" are used, and the "low" are disregarded. It is reccomended to use both "high" and "low" when selection.function is "Neg.exp.piecewise" or "Sigmoid.cont", and only "high" when selection.function is "Copas.twoside" or "Copas.oneside", as originally proposed by Copas et al. (2019). See details.}
 
@@ -111,6 +111,12 @@ The "Sigmoid.cont" is a further generalizaiton, in which the probability of an u
 \deqn{\Omega_3(y_i, z_{\alpha}\sigma_i, \lambda) =  \frac{1}{1+ e^{\lambda(y_i- z_{\alpha}\sigma_i)}}}
 
 
+For a harmful outcome, the following missing data mechanism is assumed, as proposed originally in Copas et al. (2019): among the unreportd studies at high risk of bias, an unreported study is missing if its treatment effect was positive, assuming that, a positive value means that the treatment has a negative/harmful effect on that outcome. The probability of unreporting is thys
+
+\deqn{  \Omega_4(y_i) =  \begin{cases}0 & y_i > 0 \\
+1 & y_i < 0 \end{cases}  }
+
+
 }
 \value{
 
@@ -122,13 +128,13 @@ Returns a list containing the following results:
 
 \item{LR_mu_unadjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
 
-\item{CI_unadjusted_low_WALD}{}
+\item{CI_unadjusted_low_WALD}{Lower bound of Wald CI for unadjusted estimate}
 
-\item{CI_unadjusted_up_WALD}{}
+\item{CI_unadjusted_up_WALD}{Upper bound of Wald CI for unadjsuted estimate}
 
 \item{mu_adjusted_benefit}{ML estimate of the treatment effect, adjusted for ORB, assuming beneficial outcome}
 
-\item{mu_adjusted_harm}{}
+\item{mu_adjusted_harm}{ML estimate of the treatment effect, adjusted for ORB, assuming harmful outcome}
 
 \item{LR_mu_adjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
 
@@ -138,17 +144,21 @@ Returns a list containing the following results:
 
 \item{tau_squared_adjusted}{ML estimate of heterogeneity parameter \eqn{\tau^2}, from adjusted log-likelihood function}
 
-\item{tau_squared_unadjusted_REML}{}
+\item{tau_squared_unadjusted_REML}{REML estimate of heterogeneity parameter \eqn{\tau^2}, from unadjusted log-likelihood function}
 
-\item{tau_squared_adjusted_REML}{}
+\item{tau_squared_adjusted_REML}{REML estimate of heterogeneity parameter \eqn{\tau^2}, from adjusted log-likelihood function}
 
-\item{average_sigma_squared_unadjusted}{}
+\item{average_sigma_squared_unadjusted}{Average \eqn{\sigma_{i}^2} across the reported studies}
 
-\item{sigma_squared_average_adjusted}{}
+\item{sigma_squared_average_adjusted}{Average \eqn{\sigma_{i}^2} across the reported and unreported studies, where the \eqn{\sigma_{i}^2} for unreported studies is imputed according to the method of Copas et al. (2019)}
 
-\item{CI_adjusted_benefit_low_WALD}{}
+\item{CI_adjusted_benefit_low_WALD}{Lower bound of Wald CI for beneficial outcome, adjusted for ORB}
 
-\item{CI_adjusted_benefit_up_WALD}{}
+\item{CI_adjusted_benefit_up_WALD}{Upper bound of Wald CI for beneficial outcome, adjusted for ORB}
+
+\item{CI_adjusted_harm_low_WALD}{Lower bound of Wald CI for harmful outcome, adjusted for ORB}
+
+\item{CI_adjusted_harm_up_WALD}{Upper bound of Wald CI for harmful outcome, adjusted for ORB}
 
 %% ...
 }
@@ -173,10 +183,27 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 \examples{
 
 Generate a meta-analysis dataset with \code{simualte_meta_data} with ORB.
-dat <- simulate_meta_data(n_studies=10, mu=0.1, tau_squared = 0.002, seed=123456789, gamma=1.5)$meta_data_missing
+dat <- simulate_meta_data(n_studies=15, mu=0.1, n_treatment=50, n_control=50, tau_squared = 0.002, gamma=1.5)
 
 Apply the reORBgen function.
-reORBgen(y=dat$y, s=dat$sd, n1=dat$`N treatment`, n2=dat$`N control`, outcome="benefit", init_param = c(0.1, 0.005), alpha=0.05, true.SE=NULL, LR.CI=TRUE)
+reORBgen(
+y=dat$y,
+s=dat$s,
+n1=dat$n_treatment,
+n2=dat$n_control,
+outcome="benefit",
+alpha_ben=0.05,
+alpha_ben_one.sided = FALSE,
+init_param = c(0.1, 0.005),
+true.SE=NULL,
+LR.CI=TRUE,
+Wald.CI = TRUE,
+selection.benefit = "Neg.exp.piecewise",
+weight_param=7,
+opt_method="L-BFGS-B",
+lower = c(-5, 0.00001),
+upper = c(5,5),
+low.risk = TRUE)
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
