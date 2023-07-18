@@ -163,14 +163,14 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, t
 
     p_val <- pnorm(logRR / sigma_squared, lower.tail = FALSE) #one sided pvalue benefit
 
-    return(list(RR_unadjusted = mle.u,
+    return(list(logRR_unadjusted = mle.u,
                 CI_unadjusted_low = LR.lower.u,
                 CI_unadjusted_up = LR.upper.u,
 
                 CI_unadjusted_low_WALD = ci.u[1],
                 CI_unadjusted_up_WALD = ci.u[2],
 
-                RR_adjusted_benefit = mle.b,
+                logRR_adjusted_benefit = mle.b,
 
                 CI_adjusted_benefit_low = LR.lower.b,
                 CI_adjusted_benefit_up = LR.upper.b,
@@ -254,7 +254,7 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, t
 
     p_val = pnorm(logRR / sigma_squared, lower.tail = FALSE)
 
-    return(list(RR_unadjusted = mle.u,
+    return(list(logRR_unadjusted = mle.u,
 
                 CI_unadjusted_low = LR.lower.u,
                 CI_unadjusted_up = LR.upper.u,
@@ -262,7 +262,7 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, t
                 CI_unadjusted_low_WALD = ci.u[1],
                 CI_unadjusted_up_WALD = ci.u[2],
 
-                RR_adjusted_harm = mle.h,
+                logRR_adjusted_harm = mle.h,
 
                 CI_adjusted_harm_low = LR.lower.h,
                 CI_adjusted_harm_up = LR.upper.h,

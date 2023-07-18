@@ -2,38 +2,90 @@
 \alias{feORBbin}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Function to adjust for outcome reporting bias (ORB) in an outcome of a meta-analysis of clinical trials for the fixed effect model
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the randome effectt model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology (cite website). The function can adjust both beneficial and harmful outcomes.
 }
 \usage{
-feORBbin(x)
+feORBbin(
+a,
+c,
+n1,
+n2,
+outcome,
+init_param,
+alpha_ben,
+alpha_harm,
+true.SE=NULL
+)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
+
+ \item{a}{A vector of observed counts for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+
+\item{c}{A vector of observed counts for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+
+\item{n1}{A vector of sample sizes in the treatment group for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.}
+
+\item{n2}{A vector of sample sizes in the control group for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.}
+
+\item{outcome}{A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").}
+
+\item{init_param}{A number to be used for the initialization of the optimization of \eqn{\mu}, i.e., the true treatment effect in the fixed effect model}
+
+\item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
+
+\item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
+
+\item{true.SE}{A vector of the observed standard errors of the treatment effects for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be provided.}
+
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+
+The function implements the Copas et al. (2019) methodology for the fixed effect model, with the only difference that it uses the one-sided significance threshold, i.e., \eqn{qnorm(1-\alpha/2)} instead of \eqn{qnorm(\alpha/2)} and \eqn{qnorm(1-\alpha/2)}.
+
+For a beneficial outcome, that is unrported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is
+
+\deqn{  \Omega_1(y_i, z_{\alpha}\sigma_i) =  \begin{cases}1 & y_i \in \{ - \infty, z_{\alpha}\sigma_i \} \\
+0 & y_i \in \{ z_{\alpha}\sigma_i, + \infty \} \end{cases}  }
+
+For a harmful outcome, that is unreported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is
+
+\deqn{  \Omega_4(y_i) =  \begin{cases}0 & y_i > 0 \\
+1 & y_i < 0 \end{cases}  }
+
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+
+\item{logRR_unadjusted}{MLE of the logRR common effect, unadjusted for ORB}
+\item{CI_unadjusted_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the unadjusted estimate}
+\item{CI_unadjusted_up}{Upper bound of the LR CI for the unadjusted estimate}
+\item{CI_unadjusted_low_WALD}{Lower bound of the Wald CI for the unadjusted estimate}
+\item{CI_unadjusted_up_WALD}{Upper bound of the Wald CI for the unadjusted estimate}
+\item{logRR_adjusted_benefit}{MLE of the logRR common effect, adjusted for ORB when the outcome is beneficial}
+\item{logRR_adjusted_harm}{MLE of the logRR common effect, adjusted for ORB when the outcome is harmful}
+\item{CI_adjusted_benefit_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_benefit_up}{Upper bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_harm_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a harmful outcome}
+\item{CI_adjusted_harm_up}{Upper bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a harmful outcome}
+\item{CI_adjusted_benefit_low_WALD}{Lower bound of the Wald CI for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_benefit_up_WALD}{Upper bound of the Wald CI for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_harm_low_WALD}{Lower bound of the Wald CI for the adjusted estimate of a harmful outcome}
+\item{CI_adjusted_harm_up_WALD}{Upper bound of the Wald CI for the adjusted estimate of a harmful outcome}
+\item{logRR}{Individual logRR of the observed treatment effects for each study}
+\item{p_value}{Individual one-sided p-values for each study}
+
 }
 \references{
-%% ~put references to the literature/web site here ~
+Copas, J., Marson, A., Williamson, P., and Kirkham, J. (2019). Model-based sensitivity analysis for outcome reporting bias in the meta analysis of benefit and harm outcomes. Statistical Methods in Medical Research, 28, 889–903.
 }
 \author{
-%%  ~~who you are~~
+Alessandra Gaia Saracini under the supervision of Prof. Dr. Leonhard Held.
 }
 \note{
-%%  ~~further notes~~
+R package created as part of Master's Thesis in Statistics at ETH Zurich.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -42,14 +94,35 @@ feORBbin(x)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (x)
-{
-  }
+data(EpilepsyData)
+
+Apply the reORBgen function to a beneficial outcome.
+
+feORBbin(
+a=EpilepsyData$`50% Seizure Reduction (T)`,
+c=EpilepsyData$`50% Seizure Reduction (C)`,
+n1=EpilepsyData$`Sample (T)`,
+n1=EpilepsyData$`Sample (C)`,
+outcome="benefit",
+alpha_ben=0.05,
+init_param = 0.1,
+true.SE=NULL
+)
+
+Apply the reORBgen function to a harmful outcome.
+
+reORBgen(
+a=EpilepsyData$`Nausea/vomiting (T)`,
+c=EpilepsyData$`Nausea/vomiting (C)`,
+n1=EpilepsyData$`Sample (T)`,
+n1=EpilepsyData$`Sample (C)`,
+outcome="harm",
+alpha_harm=0.01,
+init_param = 0.1,
+true.SE=NULL
+)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):

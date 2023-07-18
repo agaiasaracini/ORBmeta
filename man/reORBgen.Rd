@@ -2,13 +2,14 @@
 \alias{reROBgen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to adjust for outcome reporting bias (ORB) in an outcome of a meta-analysis of clinical trials
+Function to adjust for outcome reporting bias (ORB) in an outcome of a meta-analysis of clinical trials for the random effect model
 }
 \description{
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials with extention to different selection functions to model the ORB mechanism (see details). The reORBgen function can take in binary outcome data (i.e., the user shoul provide a, c, n1, n2), means and standard errors (i.e., the user should provide mu1, mu2, sd1, sd2, n1, n2), or a treatment effect assumed to be normally distributed (i.e., the user should provide y, s, n1, n2). The outcome variable is reported for some studies, and unreported for others. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology (cite website). The function can adjust both beneficial and harmful outcomes.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the randome effectt model with extention to different selection functions to model the ORB mechanism (see details). The reORBgen function can take in binary outcome data (i.e., the user shoul provide a, c, n1, n2), means and standard errors (i.e., the user should provide mu1, mu2, sd1, sd2, n1, n2), or a treatment effect assumed to be normally distributed (i.e., the user should provide y, s, n1, n2). The outcome variable is reported for some studies, and unreported for others. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology (cite website). The function can adjust both beneficial and harmful outcomes.
 }
 \usage{
-(a=NULL,
+reORBgen(
+a=NULL,
 c=NULL,
 mu1=NULL,
 mu2=NULL,
@@ -165,7 +166,7 @@ Returns a list containing the following results:
 \references{
 
 
-
+Copas, J., Marson, A., Williamson, P., and Kirkham, J. (2019). Model-based sensitivity analysis for outcome reporting bias in the meta analysis of benefit and harm outcomes. Statistical Methods in Medical Research, 28, 889–903.
 
 }
 \author{
