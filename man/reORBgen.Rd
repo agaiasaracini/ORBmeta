@@ -88,17 +88,27 @@ low.risk = FALSE
 
 \details{
 
-For a beneficial outcome, difference underlying missing data mechanisms can be assumed, which result in a different weight attributed to the ORB-adjusted log-likelihood.
+For a beneficial outcome, different underlying missing data mechanisms can be assumed, which result in a different weight attributed to the ORB-adjusted log-likelihood.
 
-The "Copas.twoside" assumes, among the unreported studies classified as high risk of bias ("high"), the following probability of unreporting \eqn{\Omega_0(y_i, z_{\alpha}\sigma_i)} , where \eqn{z_{\alpha} = \text{qnorm}(1-\alpha/2)}. The underlying ORB mechanism proposed by Copas et al. (2019) assumes that, for a beneficial outcome, an unrepored study classified as "high", is missing because it was not significant, assuming two sided siginficance.
+The "Copas.twoside" from Copas et al. (2019) assumes, among the unreported studies classified as high risk of bias ("high"), the probability of unreporting \eqn{\Omega_0(y_i, z_{\alpha}\sigma_i)} , where \eqn{z_{\alpha} = \text{qnorm}(1-\alpha/2)}. The underlying ORB mechanism proposed by Copas et al. (2019) assumes that, for a beneficial outcome, an unrepored study classified as "high", is missing because it was not significant, assuming two-sided siginficance. Using "Copas.twoside" implies that only the "high" unreported studies are used, thus low.risk = FALSE.
 
 \deqn{\Omega_0(y_i, z_{\alpha}\sigma_i) = \begin{cases}0 &  y_i \in \{ -\infty, -z_{\alpha}\sigma_i \} \cup \{ z_{\alpha}\sigma_i, + \infty \}  \\
 1 & y_i \in  \{ -z_{\alpha}\sigma_i, +z_{\alpha}\sigma_i \} \end{cases}}
 
-The "Copas.oneside" is an adaptation of the above, where the one-sided selection function is used, under the assumption that for a positive direction of treatment, a significant effect but in the "wrong" direction is very unlikely to be repotred. Hence the probability of unreporting \eqn{\Omega_1(y_i, z_{\alpha}\sigma_i)} is:
+The "Copas.oneside" is an adaptation of the above, where the one-sided probability of unreporting \eqn{\Omega_1(y_i, z_{\alpha}\sigma_i)} is used, under the assumption that, for a positive direction of treatment, a significant effect, but in the "wrong"/harmful direction, is very unlikely to be repotred. Using "Copas.oneisde" implies that only the "high" unreported studies are used, thus low.risk = FALSE.
 
 \deqn{  \Omega_1(y_i, z_{\alpha}\sigma_i) =  \begin{cases}1 & y_i \in \{ - \infty, z_{\alpha}\sigma_i \} \\
 0 & y_i \in \{ z_{\alpha}\sigma_i, + \infty \} \end{cases}  }
+
+The "Neg.exp.piecewise" is a generalization of the above piece-wise probabilities of unreporting, which assumes that, among all unerported studies ("high" and "low"), a non-significant one has probability of unreporing = 1, and a significant one (one-sided) is a negative exponential function with rate parameter \eqn{\rho > 0}, instead of being 0 as the above. The function, \eqn{\Omega_2(y_i, z_{\alpha}\sigma_i, \lambda)} is still piece-wise, but smooth after the \eqn{z_{\alpha}\sigma_i} threshold for significance. Using "Neg.exp.piecewise" implies that both "high" and "low" unreported studies are used, thus low.risk = TRUE.
+
+\deqn{\Omega_2(y_i, z_{\alpha}\sigma_i, \lambda) =  \begin{cases}1 & y_i \in \{ - \infty, z_{\alpha}\sigma_i \} \\
+e^{-\rho \cdot (y_i - z_{\alpha}\sigma_i)} & y_i \in \{ z_{\alpha}\sigma_i, + \infty \} \end{cases} }
+
+
+The "Sigmoid.cont" is a further generalizaiton, in which the probability of an unreport study not reporting the outcome  is a continous decreasing function of the observed treatment effectiwith rate parameter \eqn{\lambda > 0}. At the threshold for one-sided significance \eqn{z_{\alpha}\sigma_i} the probability of unreporting is 0.5. Using "Sigmoid.cont" implies that both "high" and "low" unreported studies are used, thus low.risk = TRUE.
+
+\deqn{\Omega_3(y_i, z_{\alpha}\sigma_i, \lambda) =  \frac{1}{1+ e^{\lambda(y_i- z_{\alpha}\sigma_i)}}}
 
 
 }
