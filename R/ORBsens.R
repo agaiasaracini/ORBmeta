@@ -1,4 +1,5 @@
 
+#' @export
 
 ORBsens <- function(p_vals=NULL,
                       eta_vals=NULL,
