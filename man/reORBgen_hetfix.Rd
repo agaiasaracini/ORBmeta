@@ -2,10 +2,10 @@
 \alias{reORBgen_hetfix}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Function to adjust for ORB in the random effect model assuming that the heterogeneity paramter is known and fixed
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+An implementation of the Copas e al. (2019) method but with know and fixed heterogeneity parameters
 }
 \usage{
 reORBgen_hetfix(x)
