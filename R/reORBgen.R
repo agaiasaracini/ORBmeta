@@ -9,7 +9,7 @@
 
 
 #'
-#library(rootSolve)
+library(rootSolve)
 
 #Takes in  a: cell counts treatment
 #          c: cell counts control
@@ -21,7 +21,7 @@
 #          true.SE=NULL if we know the standard errors
 #          LR.CI=FALSE if we want it to calculate the profile likelihood confidence intervals
 
-# ' @export
+
 reORBgen <- function(a=NULL, c=NULL,
                      mu1=NULL, mu2=NULL, sd1=NULL, sd2=NULL,
                      y=NULL, s=NULL,
