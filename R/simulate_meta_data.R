@@ -1,4 +1,6 @@
 
+#' @export
+#'
 
 #To simulate one data set of a meta analysis with and without ORB
 simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_control=50, gamma){

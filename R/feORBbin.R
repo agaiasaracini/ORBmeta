@@ -6,7 +6,9 @@
 #ORB: correction
 #bin: takes observed cell counts for treatment and control
 
-library(rootSolve)
+#library(rootSolve)
+
+#' @export
 
 feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, true.SE=NULL) {
 
