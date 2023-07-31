@@ -1,6 +1,6 @@
 
 
-library(rootSolve)
+#library(rootSolve)
 #If tau squared is known, init_param is just one number, an initial guess of mu!
 #Not a vector of two entries anymore
 

@@ -9,7 +9,7 @@
 
 
 #'
-library(rootSolve)
+#library(rootSolve)
 
 #Takes in  a: cell counts treatment
 #          c: cell counts control
