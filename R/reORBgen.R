@@ -1,27 +1,28 @@
 
+#' @export
+
 #The reORBgen function which is described in the reORBgen.Rd file
 #Implementation of the Copas et al. (2019) method for ORB adjustment
 #in meta-anlyses of clinical trials, for the random effects model.
 #re: random effect
 #ORB: correction
 #gen: generic, because it takes in an observed treatment effect, assumed to be
-#     normally distributed, with standard error and sample sizes
+#normally distributed, with standard error and sample sizes
 
 
 
 #library(rootSolve)
 
 #Takes in  a: cell counts treatment
-#          c: cell counts control
-#          n1: sample size treatment
-#          n2: sample size control
-#          init_param: c(log RR, heterogeneity) initial guess of true treatment effect
-#                      and heterogeneity parameters for initialization of optimization
-#          alpha: confidence level
-#          true.SE=NULL if we know the standard errors
-#          LR.CI=FALSE if we want it to calculate the profile likelihood confidence intervals
+#c: cell counts control
+#n1: sample size treatment
+#n2: sample size control
+#init_param: c(log RR, heterogeneity) initial guess of true treatment effect
+#and heterogeneity parameters for initialization of optimization
+#alpha: confidence level
+#true.SE=NULL if we know the standard errors
+#LR.CI=FALSE if we want it to calculate the profile likelihood confidence intervals
 
-#' @export
 
 reORBgen <- function(a=NULL, c=NULL,
                      mu1=NULL, mu2=NULL, sd1=NULL, sd2=NULL,
