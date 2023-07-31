@@ -205,6 +205,7 @@ opt_method="L-BFGS-B",
 lower = c(-5, 0.00001),
 upper = c(5,5),
 low.risk = TRUE)
+}
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
