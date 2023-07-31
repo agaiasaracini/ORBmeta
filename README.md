@@ -4,6 +4,12 @@
 The package implements the methodology developed by Copas et al. (2019), as well as extensions, 
 to adjust for ORB in meta-analysis of clinical trials. 
 
+# Installing ORBmeta
+
+In the console:
+library(devtools)
+devtools::install_github("agaiasaracini/ORBmeta")
+
 # Functions
 The package contains the function reORBgen(), which uses the random effectmodel to implement the methodology of Copas et al. (2019) and extensions based on generalized fuctions that describe the missing data mechanism. The function can be used of beneficial and harmful outcomes, and can take in: i) binary data, from which log RR are calculates as the treatment effect, ii) means, from which differences in means are computed, iii) a normally distributed treatment effect. The function reORBgen_hetfixed() is the same but assumes that the heterogeneity variance is a known and fixed parameter, and hence only optimizes with respect to the global treatment effect. The function feORBbin() implements the Copas et al. (2019) methodology for the fixed effect model, without extensions, and for binary outcome data. The ORBsens() function performs a sensitivity analysis for ORB adjustment based on the probability that the ORBIT assessment into high/low risk of bias is correct. This is done by implementing the method of Copas et al. (2014), which was constructed for beneficial outcomes, and additing the extension for harmful outcomes. The functions works for both binary data and means. Finally, the function simulate_meta_data() simulates a meta-analysis in the presence of both low and high risk of bias study outcomes, 
 in the random effect model context. This function can be used to generate a meta-analysis in the presence of ORB and subsequently apply the above-mentioned functions for ORB-adjustment.
