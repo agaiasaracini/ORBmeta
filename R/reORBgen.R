@@ -8,7 +8,7 @@
 #     normally distributed, with standard error and sample sizes
 
 
-#'
+
 #library(rootSolve)
 
 #Takes in  a: cell counts treatment
