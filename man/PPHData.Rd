@@ -5,7 +5,7 @@
 Post Partum Hemmorage (PPH) Example Data
 }
 \description{
-The meta-analysis includes 4 studies whcih report the number of cases in the control and treatment groups. Out of the 5 studies which do not report the outcome, 4 are classified as low risk of bias (LR), and 1 as high risk of bias (HR) by the ORBIT methodology.
+The meta-analysis includes 4 studies whcih report the number of cases of PPH in the control and treatment groups. Out of the 5 studies which do not report the outcome, 4 are classified as low risk of bias (LR), and 1 as high risk of bias (HR) by the ORBIT methodology.
 }
 \usage{data("PPHData")}
 \format{

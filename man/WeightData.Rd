@@ -2,10 +2,10 @@
 \alias{WeightData}
 \docType{data}
 \title{
-%%   ~~ data name/kind ... ~~
+Weight Gain Example Data
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of the dataset. ~~
+The meta-analysis includes 3 studies which report the mean weight gain and observed standard deviation. All 3 studies which do not report the outcome are classified as high risk of bias by the ORBIT methodology.
 }
 \usage{data("WeightData")}
 \format{
