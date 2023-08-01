@@ -2,86 +2,143 @@
 \alias{ORBsens}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-ORB sens
+Function to adjust for outcome reporting bias (ORB) in a random-effect meta-analysis and conduct sensitivity analyses, according to the methodology developed by Copas et al. (2014) with extensions.
 }
 \description{
-Sensitivity Analaysis of Copas et al. 2014 methodlogy plus extension
+An implementation of the Copas et al. (2014) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model for beneficial outcomes, and extention to harmful outcomes (see details). The ORBsens function can take in binary outcome data (i.e., the user should provide \code{a}, \code{c}, \code{n1}, \code{n2}), as well as means and standard errors (i.e., the user should provide \code{mu1}, \code{mu2}, \code{sd1}, \code{sd2}, \code{n1}, \code{n2}). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the ORBIT methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function includes uncertainty in the risk of bias classification through the \code{p_vals} or \code{eta_vals} for beneficial and harmful outcomes respectively.
 }
 \usage{
-ORBsens(p_vals = NULL, eta_vals = NULL, a = NULL, c = NULL, mu1 = NULL, mu2 = NULL, sd1 = NULL, sd2 = NULL, n1, n2, ntot, sign_level, init_param, outcome, opt_method, lower = c(-10, 0.05, 0.05, 0.05), upper = c(10, 10, 1, 1))
+ORBsens(
+p_vals = NULL,
+eta_vals = NULL,
+a = NULL,
+c = NULL,
+mu1 = NULL,
+mu2 = NULL,
+sd1 = NULL,
+sd2 = NULL,
+n1,
+n2,
+ntot,
+sign_level,
+init_param,
+outcome,
+opt_method,
+lower = c(-10, 0.05, 0.05, 0.05),
+upper = c(10, 10, 1, 1)
+)
+
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{p_vals}{
-%%     ~~Describe \code{p_vals} here~~
-}
-  \item{eta_vals}{
-%%     ~~Describe \code{eta_vals} here~~
-}
-  \item{a}{
-%%     ~~Describe \code{a} here~~
-}
-  \item{c}{
-%%     ~~Describe \code{c} here~~
-}
-  \item{mu1}{
-%%     ~~Describe \code{mu1} here~~
-}
-  \item{mu2}{
-%%     ~~Describe \code{mu2} here~~
-}
-  \item{sd1}{
-%%     ~~Describe \code{sd1} here~~
-}
-  \item{sd2}{
-%%     ~~Describe \code{sd2} here~~
-}
-  \item{n1}{
-%%     ~~Describe \code{n1} here~~
-}
-  \item{n2}{
-%%     ~~Describe \code{n2} here~~
-}
+  \item{p_vals}{A vector of size 2 specifiying the probabilities \eqn{\rho_1} and \eqn{\rho_2} (see Details).}
+
+  \item{eta_vals}{A vector of size 2 specifiying the probabilities \eqn{\eta_1} and \eqn{\eta_2} (see Details).}
+
+\item{a}{A vector of observed counts for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+
+\item{c}{A vector of observed counts for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+
+\item{mu1}{A vector of observed means for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the means in the outcome of interest, the entries are either "high" or "low".}
+
+\item{mu2}{A vector of observed means for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the means in the outcome of interest, the entries are either "high" or "low".}
+
+\item{sd1}{A vector of observed standard errors for the mean in the treatment group for each study in the meta-analysis. For the studies which do not report the mean/standard error in the outcome of interest, the entries are either "high" or "low".}
+
+\item{sd2}{A vector of observed standard errors for the mean in the control group for each study in the meta-analysis. For the studies which do not report the mean/standard error in the outcome of interest, the entries are either "high" or "low".}
+
+\item{n1}{A vector of sample sizes in the treatment group for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.}
+
+\item{n2}{A vector of sample sizes in the control group for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.}
+
   \item{ntot}{
-%%     ~~Describe \code{ntot} here~~
+A vector of total sample sizes for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.
 }
   \item{sign_level}{
-%%     ~~Describe \code{sign_level} here~~
+he value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} for beneficial outcomes, and \eqn{\alpha=0.01} for harmful outcomes according to Copas et al. (2019).
 }
   \item{init_param}{
-%%     ~~Describe \code{init_param} here~~
+A vector of length 4, containing the values to be used for initialization of the joint optimization. For beneficial outcomes these are:  \code{init_param = c ( \eqn{\mu}, \eqn{\tau^2}, \eqn{\alpha}, \eqn{\beta} )}.For harmful outcomes these are: \code{init_param = c( \eqn{\mu}, \eqn{\tau^2}, \eqn{\alpha}, \eqn{\gamma} )} See Details for definitions of \eqn{\alpha}, \eqn{\beta} and \eqn{\gamma}.
 }
   \item{outcome}{
-%%     ~~Describe \code{outcome} here~~
+A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").
 }
   \item{opt_method}{
-%%     ~~Describe \code{opt_method} here~~
+A character specifying the method used in the \eqn{\texttt{optim()}} function for the joint optimization. Reccomended is "L-BFGS-B".
 }
   \item{lower}{
-%%     ~~Describe \code{lower} here~~
+A vector of length 4 containing the lower bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(-10, 0.05, 0.05, 0.05)}.
 }
   \item{upper}{
-%%     ~~Describe \code{upper} here~~
+A vector of length 4 containing the upper bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(10, 10, 1, 1)}.
 }
+
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+
+For a beneficial outcome, the log-likelihood to be maximized is
+
+\deqn{
+
+l_{\rho_{1}, \rho_{2}} (\mu, \tau^2, \alpha, \beta) = \\
+\sum_{ i \in \text{Rep}} \log  [f_{i}(y_{i})] +
+N_{R} \log (\alpha) +
+N_{R \cap s} \log (\beta) + \\
+\sum_{i \in \text{HR}} \log [\rho_{1} \alpha Q_{i} (1 - \beta) + (1 - \rho_{2})(1 - \alpha) ] + \\
+\sum_{i \in \text{LR}} \log [(1-\rho_{1})\alpha Q_{i}(1-\beta) + \rho_{2}(1-\alpha) ]
+
+
+}
+
+where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\beta} is the probability an outcome being reported given that it was measured and non-significant. The \eqn{\rho_{1}, \rho_{2}} reliability parameters are treated as fixed and are respectively defined as the probability that an outcome is classified as HR given that it was measured, non-significant, and unreported, and the probability that an outcome is classified as LR given that it was not measured and was not reported. See Copas et al. (2014) for the derivation.
+
+For a harmful outcome, the log-likelihood to be maximized is
+
+\deqn{
+
+L_{\eta_{1}, \eta_{2}} (\mu, \tau^2, \alpha, \gamma)  = \\
+\sum_{i \in \text{Rep}} \log [f_{i}(y_{i}) ] + N_{\text{R}} \log (\alpha) + N_{\text{R} \cap P } \log (\gamma) +\\
+\sum_{i \in \text{LR}} \log [\alpha Q_{h_i} (1-\gamma) (1-\eta_1) + (1-\alpha)\eta_2 ] + \\
+\sum_{i \in \text{HR}} \log [\alpha Q_{h_i} (1-\gamma) \eta_1 + (1-\alpha)(1-\eta_2) ]
+
+}
+
+where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\gamma} is the probability an outcome being reported given that it was measured and poistive. The \eqn{\eta_{1}, \eta_{2}} reliability parameters are treated as fixed and are respectively defined as the probability that an outcome is classified as HR given that it was measured, positive, and unreported, and the probability that an outcome is classified as LR given that it was not measured and was not reported.
+
+
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+
+Returns a list with the following elements
+
+\item{mle.unadjusted}{Unadjusted MLE of the global treatment effect \eqn{\mu}}
+
+\item{se.unadjusted}{Unadjusted standard error of the MLE for the global treatment effect \eqn{\mu}}
+
+\item{width.unadjusted}{Unadjusted width of the Wald CI for the global treatment effect \eqn{\mu}}
+
+\item{ci.unadjusted}{Unadjusted Wald CI for the global treatment effect \eqn{\mu}}
+
+\item{mle.adjusted}{ORB-adjusted MLE of the global treatment effect \eqn{\mu}}
+
+\item{se.adjusted}{ORB-adjusted standard error of the MLE for the global treatment effect \eqn{\mu}}
+
+\item{width.adjusted}{ORB-adjusted width of the Wald CI for the global treatment effect \eqn{\mu}}
+
+\item{ci.unadjusted}{ORB-adjusted Wald CI for the global treatment effect \eqn{\mu}}
+
+
 }
 \references{
-%% ~put references to the literature/web site here ~
+
+Copas, J., Dwan, K., Kirkham, J., and Williamson, P. (2014). A model-based correction for outcome reporting bias in meta-analysis. Biostatistics, 15, 370–383.
+
 }
 \author{
-%%  ~~who you are~~
+Alessandra Gaia Saracini under the supervision of Prof. Dr. Leonhard Held.
 }
 \note{
-%%  ~~further notes~~
+R package created as part of Master's Thesis in Statistics at ETH Zurich.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -90,424 +147,91 @@ ORBsens(p_vals = NULL, eta_vals = NULL, a = NULL, c = NULL, mu1 = NULL, mu2 = NU
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (p_vals = NULL, eta_vals = NULL, a = NULL, c = NULL,
-    mu1 = NULL, mu2 = NULL, sd1 = NULL, sd2 = NULL, n1, n2, ntot,
-    sign_level, init_param, outcome, opt_method, lower = c(-10,
-        0.05, 0.05, 0.05), upper = c(10, 10, 1, 1))
-{
-    p1 <- p_vals[1]
-    p2 <- p_vals[2]
-    eta1 <- eta_vals[1]
-    eta2 <- eta_vals[2]
-    method <- opt_method
-    lower <- lower
-    upper <- upper
-    z_alpha <- qnorm(1 - sign_level/2)
-    if (!is.null(a) & !is.null(c)) {
-        Rep_index <- which(!is.na(as.numeric(a)))
-        HR_index <- which(a == "high")
-        LR_index <- which(a == "low")
-        a_rep <- as.numeric(a[Rep_index])
-        c_rep <- as.numeric(c[Rep_index])
-        n1_rep <- as.numeric(n1[Rep_index])
-        n2_rep <- as.numeric(n2[Rep_index])
-        if (length(a_rep == 0) | length(c_rep == 0) > 0) {
-            a_0_index <- c(which(a_rep == 0), which(c_rep ==
-                0))
-            a_rep[a_0_index] <- a_rep[a_0_index] + 0.5
-            c_rep[a_0_index] <- c_rep[a_0_index] + 0.5
-            n1_rep[a_0_index] <- n1_rep[a_0_index] + 0.5
-            n2_rep[a_0_index] <- n2_rep[a_0_index] + 0.5
-            a_0_both <- which(a_rep == 0.5 & c_rep == 0.5)
-            if (length(a_0_both) > 0) {
-                a_rep <- a_rep[-a_0_both]
-                c_rep <- c_rep[-a_0_both]
-                n1_rep <- n1_rep[-a_0_both]
-                n2_rep <- n2_rep[-a_0_both]
-            }
-            else {
-                a_rep <- a_rep
-                c_rep <- c_rep
-                n1_rep <- n1_rep
-                n2_rep <- n2_rep
-            }
-        }
-        else {
-            a_rep <- a_rep
-            c_rep <- c_rep
-            n1_rep <- n1_rep
-            n2_rep <- n2_rep
-        }
-        N_rep <- length(Rep_index)
-        n_HR <- as.numeric(ntot[HR_index])
-        n_LR <- as.numeric(ntot[LR_index])
-        y <- log((a_rep * n2_rep)/(c_rep * n1_rep))
-        s <- sqrt(((n1_rep - a_rep)/(n1_rep * a_rep)) + ((n2_rep -
-            c_rep)/(n2_rep * c_rep)))
-        s2 <- s^2
-        y_S <- y[which(abs(y) > z_alpha * s)]
-        y_s <- y[which(abs(y) <= z_alpha * s)]
-        y_P <- y[which(y > 0)]
-        y_p <- y[which(y <= 0)]
-        N_rep_P <- length(y_P)
-        N_rep_p <- length(y_p)
-        N_rep_s <- length(y_s)
-        k <- sum(1/(s2))/sum((n1_rep + n2_rep))
-    }
-    else if (!is.null(mu1) & !is.null(mu2) & !is.null(sd1) &
-        !is.null(sd2)) {
-        Rep_index <- which(!is.na(as.numeric(mu1)))
-        HR_index <- which(mu1 == "high")
-        LR_index <- which(mu1 == "low")
-        n_HR <- as.numeric(ntot[HR_index])
-        n_LR <- as.numeric(ntot[LR_index])
-        mu1_rep <- as.numeric(mu1[Rep_index])
-        mu2_rep <- as.numeric(mu2[Rep_index])
-        sd1_rep <- as.numeric(sd1[Rep_index])
-        sd2_rep <- as.numeric(sd2[Rep_index])
-        n1_rep <- as.numeric(n1[Rep_index])
-        n2_rep <- as.numeric(n2[Rep_index])
-        N_rep <- length(Rep_index)
-        y <- mu1_rep - mu2_rep
-        s <- sqrt((as.numeric(sd1_rep)^2)/(as.numeric(n1_rep)) +
-            (as.numeric(sd2_rep)^2)/(as.numeric(n2_rep)))
-        s2 <- s^2
-        y_S <- y[which(abs(y) > z_alpha * s)]
-        y_s <- y[which(abs(y) <= z_alpha * s)]
-        N_rep_s <- length(y_s)
-        y_P <- y[which(y > 0)]
-        y_p <- y[which(y <= 0)]
-        N_rep_P <- length(y_P)
-        N_rep_p <- length(y_p)
-        k <- sum(1/(s2))/sum((n1_rep + n2_rep))
-    }
-    else {
-        return("Error: invalid inputs. Input either a and c values or y1,sd1 and y2,sd2 values.")
-    }
-    loglik.unadjusted <- function(param, y, s2, N_rep, N_rep_s) {
-        theta <- param[1]
-        t2 <- param[2]
-        alpha <- param[3]
-        beta <- param[4]
-        f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) * (((y -
-            theta)^2)/(s2 + t2)))
-        sum(log(f)) + N_rep * log(alpha) + N_rep_s * log(beta)
-    }
-    init_param <- init_param
-    if (method == "L-BFGS-B") {
-        fit.unadjusted <- optim(init_param, loglik.unadjusted,
-            y = y, s2 = s2, N_rep = N_rep, N_rep_s = N_rep_s,
-            method = method, lower = lower, upper = upper, control = list(fnscale = -1),
-            hessian = TRUE)
-    }
-    else {
-        fit.unadjusted <- optim(init_param, loglik.unadjusted,
-            y = y, s2 = s2, N_rep = N_rep, N_rep_s = N_rep_s,
-            method = method, control = list(fnscale = -1), hessian = TRUE)
-    }
-    mle.unadjusted <- fit.unadjusted$par[1]
-    a <- sign_level
-    fisher_info.unadjusted <- solve(-fit.unadjusted$hessian)
-    s.unadjusted <- sqrt(diag(fisher_info.unadjusted)[1])
-    ci.unadjusted <- fit.unadjusted$par[1] + qnorm(c(a/2, 1 -
-        a/2)) * s.unadjusted
-    width.unadjusted <- abs(ci.unadjusted[1] - ci.unadjusted[2])
-    if (outcome == "benefit") {
-        if (length(HR_index) > 0 & length(LR_index) > 0) {
-            s2_imp_HR <- 1/(k * n_HR)
-            s2_imp_LR <- 1/(k * n_LR)
-            loglik <- function(param, p1, p2, y, s2, s2_imp_HR,
-                s2_imp_LR, N_rep, N_rep_s) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                beta <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_HR <- pnorm((z_alpha * sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR +
-                  t2))) - pnorm((-z_alpha * sqrt(s2_imp_HR) -
-                  theta)/(sqrt(s2_imp_HR + t2)))
-                Q_LR <- pnorm((z_alpha * sqrt(s2_imp_LR) - theta)/(sqrt(s2_imp_LR +
-                  t2))) - pnorm((-z_alpha * sqrt(s2_imp_LR) -
-                  theta)/(sqrt(s2_imp_LR + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_s *
-                  log(beta) + sum(log(p1 * alpha * (Q_HR) * (1 -
-                  beta) + (1 - p2) * (1 - alpha))) + sum(log((1 -
-                  p1) * alpha * (Q_LR) * (1 - beta) + p2 * (1 -
-                  alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_HR = s2_imp_HR, s2_imp_LR = s2_imp_LR,
-                  N_rep = N_rep, N_rep_s = N_rep_s, method = method,
-                  lower = lower, upper = upper, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_HR = s2_imp_HR, s2_imp_LR = s2_imp_LR,
-                  N_rep = N_rep, N_rep_s = N_rep_s, method = method,
-                  control = list(fnscale = -1), hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else if (length(HR_index) > 0 & length(LR_index) == 0) {
-            s2_imp_HR <- 1/(k * n_HR)
-            loglik <- function(param, p1, p2, y, s2, s2_imp_HR,
-                N_rep, N_rep_s) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                beta <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_HR <- pnorm((z_alpha * sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR +
-                  t2)))
-                -pnorm((-z_alpha * sqrt(s2_imp_HR) - theta)/(sqrt(s2_imp_HR +
-                  t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_s *
-                  log(beta) + sum(log(p1 * alpha * (Q_HR) * (1 -
-                  beta) + (1 - p2) * (1 - alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_HR = s2_imp_HR, N_rep = N_rep,
-                  N_rep_s = N_rep_s, method = method, control = list(fnscale = -1),
-                  lower = lower, upper = upper, hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_HR = s2_imp_HR, N_rep = N_rep,
-                  N_rep_s = N_rep_s, method = method, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else if (length(HR_index) == 0 & length(LR_index) > 0) {
-            s2_imp_LR <- 1/(k * n_LR)
-            loglik <- function(param, p1, p2, y, s2, s2_imp_LR,
-                N_rep, N_rep_s) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                beta <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_LR <- pnorm((z_alpha * sqrt(s2_imp_LR) - theta)/(sqrt(s2_imp_LR +
-                  t2))) - pnorm((-z_alpha * sqrt(s2_imp_LR) -
-                  theta)/(sqrt(s2_imp_LR + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_s *
-                  log(beta) + sum(log((1 - p1) * alpha * (Q_LR) *
-                  (1 - beta) + p2 * (1 - alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_LR = s2_imp_LR, N_rep = N_rep,
-                  N_rep_s = N_rep_s, method = method, lower = lower,
-                  upper = upper, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, s2_imp_LR = s2_imp_LR, N_rep = N_rep,
-                  N_rep_s = N_rep_s, method = method, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else {
-            loglik <- function(param, p1, p2, y, s2, N_rep, N_rep_s) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                beta <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_s *
-                  log(beta)
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, N_rep = N_rep, N_rep_s = N_rep_s,
-                  method = method, lower = lower, upper = upper,
-                  control = list(fnscale = -1), hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, p1 = p1, p2 = p2,
-                  y = y, s2 = s2, N_rep = N_rep, N_rep_s = N_rep_s,
-                  method = method, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        a <- sign_level
-        fisher_info <- solve(-fit$hessian)
-        s <- sqrt(diag(fisher_info)[1])
-        ci <- fit$par[1] + qnorm(c(a/2, 1 - a/2)) * s
-        width <- abs(ci[1] - ci[2])
-        return(list(mle.unadjusted = mle.unadjusted, se.unadjusted = s.unadjusted,
-            width.unadjusted = width.unadjusted, ci.unadjusted = ci.unadjusted,
-            mle.adjusted = mle, se.adjusted = s, width.adjusted = width,
-            ci.adjusted = ci))
-    }
-    else if (outcome == "harm") {
-        if (length(HR_index) > 0 & length(LR_index) > 0) {
-            s2_imp_HR <- 1/(k * n_HR)
-            s2_imp_LR <- 1/(k * n_LR)
-            loglik <- function(param, eta1, eta2, y, s2, s2_imp_HR,
-                s2_imp_LR, N_rep, N_rep_P) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                gamm <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_HR <- pnorm(theta/(sqrt(s2_imp_HR + t2)))
-                Q_LR <- pnorm(theta/(sqrt(s2_imp_LR + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_P *
-                  log(gamm) + sum(log(eta1 * alpha * (Q_HR) *
-                  (1 - gamm) + (1 - eta2) * (1 - alpha))) + sum(log((1 -
-                  eta1) * alpha * (Q_LR) * (1 - gamm) + eta2 *
-                  (1 - alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_HR = s2_imp_HR,
-                  s2_imp_LR = s2_imp_LR, N_rep = N_rep, N_rep_P = N_rep_P,
-                  method = method, lower = lower, upper = upper,
-                  control = list(fnscale = -1), hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_HR = s2_imp_HR,
-                  s2_imp_LR = s2_imp_LR, N_rep = N_rep, N_rep_P = N_rep_P,
-                  method = method, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else if (length(HR_index) > 0 & length(LR_index) == 0) {
-            s2_imp_HR <- 1/(k * n_HR)
-            loglik <- function(param, eta1, eta2, y, s2, s2_imp_HR,
-                N_rep, N_rep_P) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                gamm <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_HR <- pnorm(theta/(sqrt(s2_imp_HR + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_P *
-                  log(gamm) + sum(log(eta1 * alpha * (Q_HR) *
-                  (1 - gamm) + (1 - eta2) * (1 - alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_HR = s2_imp_HR,
-                  N_rep = N_rep, N_rep_P = N_rep_P, method = method,
-                  control = list(fnscale = -1), lower = lower,
-                  upper = upper, hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_HR = s2_imp_HR,
-                  N_rep = N_rep, N_rep_P = N_rep_P, method = method,
-                  control = list(fnscale = -1), hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else if (length(HR_index) == 0 & length(LR_index) > 0) {
-            s2_imp_LR <- 1/(k * n_LR)
-            loglik <- function(param, eta1, eta2, y, s2, s2_imp_LR,
-                N_rep, N_rep_P) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                gamm <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                Q_LR <- pnorm(theta/(sqrt(s2_imp_LR + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_P *
-                  log(gamm) + sum(log((1 - p1) * alpha * (Q_LR) *
-                  (1 - gamm) + eta2 * (1 - alpha)))
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_LR = s2_imp_LR,
-                  N_rep = N_rep, N_rep_P = N_rep_P, method = method,
-                  lower = lower, upper = upper, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eta2 = eta2, y = y, s2 = s2, s2_imp_LR = s2_imp_LR,
-                  N_rep = N_rep, N_rep_P = N_rep_P, method = method,
-                  control = list(fnscale = -1), hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        else {
-            loglik <- function(param, eta1, eta2, y, s2, N_rep,
-                N_rep_P) {
-                theta <- param[1]
-                t2 <- param[2]
-                alpha <- param[3]
-                gamm <- param[4]
-                f <- (1/sqrt(2 * pi * (s2 + t2))) * exp((-1/2) *
-                  (((y - theta)^2)/(s2 + t2)))
-                sum(log(f)) + N_rep * log(alpha) + N_rep_P *
-                  log(gamm)
-            }
-            init_param <- init_param
-            if (method == "L-BFGS-B") {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eat2 = eta2, y = y, s2 = s2, N_rep = N_rep,
-                  N_rep_P = N_rep_P, method = method, lower = lower,
-                  upper = upper, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            else {
-                fit <- optim(init_param, loglik, eta1 = eta1,
-                  eat2 = eta2, y = y, s2 = s2, N_rep = N_rep,
-                  N_rep_P = N_rep_P, method = method, control = list(fnscale = -1),
-                  hessian = TRUE)
-            }
-            mle <- fit$par[1]
-            val <- fit$value
-        }
-        a <- sign_level
-        fisher_info <- solve(-fit$hessian)
-        s <- sqrt(diag(fisher_info)[1])
-        ci <- fit$par[1] + qnorm(c(a/2, 1 - a/2)) * s
-        width <- abs(ci[1] - ci[2])
-        return(list(mle.unadjusted = mle.unadjusted, se.unadjusted = s.unadjusted,
-            width.unadjusted = width.unadjusted, ci.unadjusted = ci.unadjusted,
-            mle.adjusted = mle, se.adjusted = s, width.adjusted = width,
-            ci.adjusted = ci))
-    }
-    else {
-        return("invalid outcome input")
-    }
-  }
+Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a beneficial outcome from PPHData.
+
+p1.grid <- seq(0.7, 1, by=0.1)
+p2.grid <- seq(0.7, 1, by=0.1)
+grid <- expand.grid(p1 = p1.grid, p2 = p2.grid)
+values.ex1 <- matrix(data = apply(grid,
+                                  1,
+                                  function(p) ORBsens(p,
+                                                      a=PPHData$`PPH (C)`,
+                                                      c=PPHData$`PPH (T)`,
+                                                      n1=PPHData$`Sample (C)`,
+                                                      n2=PPHData$`Sample (T)`,
+                                                      ntot=PPHData$`Sample Total`,
+                                                      sign_level=0.05,
+                                                      init_param=c(0.7, 0.6, 0.9, 0.9),
+                                  										outcome="benefit",
+                                  										opt_method="L-BFGS-B")$mle.adjusted),
+                                  nrow = length(p1.grid))
+
+
+
+
+filled.contour(x=p1.grid,
+               y=p2.grid,
+               z=values.ex1,
+               levels = seq(-0.7, -0.6, by=0.005),
+               xlab = expression(paste(rho[1], sep = "")),
+               ylab = expression(paste(rho[2], sep = "")),
+               plot.axes = {
+                 axis(1)
+                 axis(2)
+                 contour(x=p1.grid,
+                         y=p2.grid,
+                         z=values.ex1,
+                         levels = seq(-0.7, -0.6, by=0.005),
+                         add = TRUE, lwd = 1)
+               },
+							 main="ORB-adjusted Treatment Effect")
+
+
+Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a harmful outcome from EpilepsyData.
+
+eta1.grid <- seq(0.7, 1, by=0.1)
+eta2.grid <- seq(0.7, 1, by=0.1)
+grid <- expand.grid(eta1 = eta1.grid, eta2 = eta2.grid)
+values <- matrix(data = apply(grid,
+                              1,
+                              function(eta) ORBsens(p_vals=NULL,
+                                                    eta,
+                                                    a=EpilepsyData$`Somnolence (T)`,
+                                                    c=EpilepsyData$`Somnolence (C)`,
+                                                    n1=EpilepsyData$`Sample (T)`,
+                                                    n2=EpilepsyData$`Sample (C)`,
+                                                    ntot=as.numeric(EpilepsyData$`Sample (T)`) + as.numeric(EpilepsyData$`Sample (C)`),
+                              											outcome="harm",
+                                                    sign_level=0.05,
+                                                    init_param=c(0.7, 0.6, 0.9, 0.9),
+                              											opt_method="L-BFGS-B",
+                              											lower = c(-10, 0.001, 0.01, 0.01),
+                                                    upper = c(10, 10,0.99,0.99))$mle.adjusted),
+                               nrow = length(eta1.grid))
+
+
+filled.contour(x=eta1.grid,
+               y=eta2.grid,
+               z=values,
+               levels = seq(0.79, 0.802, by=0.001),
+               xlab = expression(paste(eta[1], sep = "")),
+               ylab = expression(paste(eta[2], sep = "")),
+               plot.axes = {
+                 axis(1)
+                 axis(2)
+                 contour(x=eta1.grid,
+                         y=eta2.grid,
+                         z=values,
+                         levels = seq(0.68, 0.81, by=0.001),
+                         add = TRUE, lwd = 1)
+               },
+							 main="ORB-adjusted Treatment Effect")
+
+
+
+
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
