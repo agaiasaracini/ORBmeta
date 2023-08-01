@@ -252,7 +252,7 @@ opt_method = "L-BFGS-B",
 lower = c(-5, 0.00001),
 upper = c(5,5),
 low.risk = TRUE)
-}
+
 
 Use a harmful outcome from the EpilepsyData.
 
@@ -266,7 +266,7 @@ sd1 = NULL,
 sd2 = NULL,
 y = NULL,
 s = NULL,
-n1 = EpilepsyData$`Sample (T)``,
+n1 = EpilepsyData$`Sample (T)`,
 n2 = EpilepsyData$`Sample (C)`,
 outcome = "harm",
 init_param = c(0.5, 0.1),
