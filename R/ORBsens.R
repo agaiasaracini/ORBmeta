@@ -22,7 +22,7 @@ ORBsens <- function(p_vals=NULL,
 
   method <- opt_method
 
-  #mu, tau squared, alpha, beta/gamma
+  #mu, tau squared, alpha, beta or gamma bounds
   lower <- lower
   upper <- upper
 
@@ -186,20 +186,20 @@ ORBsens <- function(p_vals=NULL,
   if (method == "L-BFGS-B"){
   fit.unadjusted <- optim(init_param, loglik.unadjusted,  y=y, s2=s2,
                           N_rep=N_rep, N_rep_s=N_rep_s,
-                          #method = "BFGS",
+
                           method =  method,
                           lower = lower,
                           upper = upper,
-                          #method="Nelder-Mead",
+
                           control = list(fnscale = -1),
                           hessian=TRUE)
   } else {
 
     fit.unadjusted <- optim(init_param, loglik.unadjusted,  y=y, s2=s2,
                             N_rep=N_rep, N_rep_s=N_rep_s,
-                            #method = "BFGS",
+
                             method =  method,
-                            #method="Nelder-Mead",
+
                             control = list(fnscale = -1),
                             hessian=TRUE)
 
@@ -426,7 +426,7 @@ ORBsens <- function(p_vals=NULL,
 
   if (method == "L-BFGS-B"){
   fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
-               #method = "BFGS",
+
                method =  method,
                lower = lower,
                upper = upper,
@@ -435,7 +435,7 @@ ORBsens <- function(p_vals=NULL,
   } else {
 
     fit <- optim(init_param, loglik, p1=p1, p2=p2, y=y, s2=s2, N_rep=N_rep, N_rep_s=N_rep_s,
-                 #method = "BFGS",
+
                  method =  method,
                  control = list(fnscale = -1),
                  hessian=TRUE)
@@ -488,12 +488,12 @@ ORBsens <- function(p_vals=NULL,
 
       loglik <- function(param, eta1, eta2, y, s2, s2_imp_HR, s2_imp_LR, N_rep, N_rep_P){
 
-        #p1, p2 parameters which are assumed to be known (we can do a sensitivity analysis)
+        #eta1, eta2 parameters which are assumed to be known (we can do a sensitivity analysis)
         #y the logRR of the reported studies
         #s2 the sigma squared of the reported studies
         #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
         #n_rep number of reportes studies
-        #n_rep_s number of reported and non significant studies
+        #n_rep_P number of reported and positive studies
 
 
         #parameters to be estimated with maximum likelihood
@@ -510,7 +510,7 @@ ORBsens <- function(p_vals=NULL,
 
         sum(log(f)) +
           N_rep*log(alpha) + #REPORTED
-          N_rep_P*log(gamm) +  #REPORTED AND NOT SIGNIFICANT
+          N_rep_P*log(gamm) +  #REPORTED AND POSITIVE
           sum(log(eta1*alpha*(Q_HR)*(1-gamm) + (1-eta2)*(1-alpha))) + #HIGH RISK
           sum(log((1-eta1)*alpha*(Q_LR)*(1-gamm) + eta2*(1-alpha))) #LOW RISK
 
@@ -521,7 +521,7 @@ ORBsens <- function(p_vals=NULL,
       if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eta2=eta2, y=y, s2=s2, s2_imp_HR=s2_imp_HR, s2_imp_LR=s2_imp_LR, N_rep=N_rep, N_rep_P=N_rep_P,
                    method =  method,
-                  #method="Nelder-Mead",
+
                    lower = lower,
                    upper = upper,
                    control = list(fnscale = -1),
@@ -552,7 +552,7 @@ ORBsens <- function(p_vals=NULL,
         #s2 the sigma squared of the reported studies
         #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
         #n_rep number of reportes studies
-        #n_rep_s number of reported and non significant studies
+        #n_rep_P number of reported and positive studies
 
 
         #parameters to be estimated with maximum likelihood
@@ -568,7 +568,7 @@ ORBsens <- function(p_vals=NULL,
 
         sum(log(f)) +
           N_rep*log(alpha) + #REPORTED
-          N_rep_P*log(gamm) +  #REPORTED AND NOT SIGNIFICANT
+          N_rep_P*log(gamm) +  #REPORTED AND POSITIVE
           sum(log(eta1*alpha*(Q_HR)*(1-gamm) + (1-eta2)*(1-alpha)))  #HIGH RISK
 
 
@@ -608,7 +608,7 @@ ORBsens <- function(p_vals=NULL,
         #s2 the sigma squared of the reported studies
         #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
         #n_rep number of reportes studies
-        #n_rep_s number of reported and non significant studies
+        #n_rep_P number of reported and positive studies
 
 
         #parameters to be estimated with maximum likelihood
@@ -624,7 +624,7 @@ ORBsens <- function(p_vals=NULL,
 
         sum(log(f)) +
           N_rep*log(alpha) + #REPORTED
-          N_rep_P*log(gamm) +  #REPORTED AND NOT SIGNIFICANT
+          N_rep_P*log(gamm) +  #REPORTED AND POSITIVE
           sum(log((1-p1)*alpha*(Q_LR)*(1-gamm) + eta2*(1-alpha))) #LOW RISK
 
       }
@@ -658,8 +658,8 @@ ORBsens <- function(p_vals=NULL,
         #y the logRR of the reported studies
         #s2 the sigma squared of the reported studies
 
-        #n_rep number of reportes studies
-        #n_rep_s number of reported and non significant studies
+        #n_rep number of reported studies
+        #n_rep_P number of reported and positive studies
 
 
         #parameters to be estimated with maximum likelihood
@@ -672,7 +672,7 @@ ORBsens <- function(p_vals=NULL,
 
         sum(log(f)) +
           N_rep*log(alpha) + #REPORTED
-          N_rep_P*log(gamm)  #REPORTED AND NOT SIGNIFICANT
+          N_rep_P*log(gamm)  #REPORTED AND POSITIVE
 
 
       }
@@ -682,7 +682,7 @@ ORBsens <- function(p_vals=NULL,
 
       if (method == "L-BFGS-B"){
       fit <- optim(init_param, loglik, eta1=eta1, eat2=eta2, y=y, s2=s2, N_rep=N_rep, N_rep_P=N_rep_P,
-                   #method = "BFGS",
+
                    method =  method,
                    lower = lower,
                    upper = upper,
@@ -690,7 +690,7 @@ ORBsens <- function(p_vals=NULL,
                    hessian=TRUE)
       } else {
         fit <- optim(init_param, loglik, eta1=eta1, eat2=eta2, y=y, s2=s2, N_rep=N_rep, N_rep_P=N_rep_P,
-                     #method = "BFGS",
+
                      method =  method,
                      control = list(fnscale = -1),
                      hessian=TRUE)
