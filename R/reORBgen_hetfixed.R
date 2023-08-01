@@ -1,9 +1,7 @@
 
 #' @export
 
-#library(rootSolve)
-#If tau squared is known, init_param is just one number, an initial guess of mu!
-#Not a vector of two entries anymore
+#If tau squared is known
 
 reORBgen_hetfixed <- function(a=NULL, c=NULL,
                               mu1=NULL, mu2=NULL, sd1=NULL, sd2=NULL,
@@ -42,27 +40,26 @@ reORBgen_hetfixed <- function(a=NULL, c=NULL,
 
 
   #Beneficial outcome
-  #In the original paper by Copas et al., they use a piece-wise selection function
+  #In the original paper by Copas et al. (2019), they use a piece-wise selection function
   #which has P(unreporting)=1 if not-significant, where they consider two tails
   #however, more realistic that, if significant in the "wrong" direction,
-  #even less likley to be reported! hence Copas.oneside = default in which we
-  #dont consider the siginficance in the "wrong direction"
+  #even less likely to be reported! hence Copas.oneside = default in which we
+  #don't consider the significance in the "wrong direction"
 
-  #Ideally have
+  #Selection functions:
   #Copas.twoside from original paper here always two sided by nature of the function
   #Copas.oneside DEFAULT
   #Neg.exp.piecewise
   #Sigmoid.cont
-  #For the first two, L-BFGS-B sometimes doesnt work well so Nelder-Mead needed
+  #Brent optimization because one dimensional
 
-  #okay so if alpha_ben_one.sided=TRUE, apart from copas.twosides, which is always two sided by nature,
+  #If alpha_ben_one.sided=TRUE, apart from copas.twosides, which is always two sided by nature,
   #we use the one-sided threshold z=1.64
-  #for the one.side copas and for the otehr selectiosn functions
-  #depends on the context but for my simulations this makes most sense since im removeing/creatign ORB based on
-  #the one sided p value
+  #Preferred to used alpha_ben_one.sided=FALSE for all selection functions, so z=1.96
+
   sel.ben <- selection.benefit
 
-  #If we have Exponential.piecewise or Sigmoid.continuous, we also need a weight parameter
+  #If we have Neg.exp.piecewise or Sigmoid.cont, we also need a weight parameter
   w <- weight_param
 
   if (Wald.CI){
@@ -75,8 +72,7 @@ reORBgen_hetfixed <- function(a=NULL, c=NULL,
   lower <- lower
   upper <- upper
 
-  #Significance
-  # z_alpha <- qnorm(1-alpha/2)
+
 
   if (!is.null(a) & !is.null(c)){
     #Reported outcomes
@@ -107,12 +103,30 @@ reORBgen_hetfixed <- function(a=NULL, c=NULL,
       n1_rep[a_0_index] <- n1_rep[a_0_index] + 0.5
       n2_rep[a_0_index] <- n2_rep[a_0_index] + 0.5 #Add 0.5 to the cell counts with 0
 
+      a_0_both <- which(a_rep == 0.5 & c_rep == 0.5) #If both zero, remove the study!
+
+      if (length(a_0_both)>0){
+
+        a_rep <- a_rep[-a_0_both]
+        c_rep <- c_rep[-a_0_both]
+        n1_rep <- n1_rep[-a_0_both]
+        n2_rep <- n2_rep[-a_0_both]
+      } else {
+
+        a_rep <- a_rep
+        c_rep <- c_rep
+        n1_rep <- n1_rep
+        n2_rep <- n2_rep
+
+      }
+
     } else {
 
       a_rep <- a_rep
       c_rep <- c_rep
       n1_rep <- n1_rep
       n2_rep <- n2_rep
+
     }
 
 
