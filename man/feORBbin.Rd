@@ -2,10 +2,10 @@
 \alias{feORBbin}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to adjust for outcome reporting bias (ORB) in an outcome of a meta-analysis of clinical trials for the fixed effect model
+Function to adjust for outcome reporting bias (ORB) in a fixed-effect meta-analysis, according to the methodology developed by Copas et al. (2019).
 }
 \description{
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the randome effectt model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology (cite website). The function can adjust both beneficial and harmful outcomes.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the fixed-effect model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology. The function can adjust both beneficial and harmful outcomes.
 }
 \usage{
 feORBbin(
@@ -39,22 +39,29 @@ true.SE=NULL
 
 \item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
-\item{true.SE}{A vector of the observed standard errors of the treatment effects for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be provided.}
+\item{true.SE}{A vector of the observed standard errors of the treatment effects (log RR) for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be provided.}
 
 }
 \details{
 
-The function implements the Copas et al. (2019) methodology for the fixed effect model, with the only difference that it uses the one-sided significance threshold, i.e., \eqn{qnorm(1-\alpha/2)} instead of \eqn{qnorm(\alpha/2)} and \eqn{qnorm(1-\alpha/2)}.
-
-For a beneficial outcome, that is unrported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is
+The function implements the Copas et al. (2019) methodology for the fixed-effect model, with the only difference that, for a beneficial outcome classified as high risk of bias, the following function for the probability of unreporting is used:
 
 \deqn{  \Omega_1(y_i, z_{\alpha}\sigma_i) =  \begin{cases}1 & y_i \in \{ - \infty, z_{\alpha}\sigma_i \} \\
 0 & y_i \in \{ z_{\alpha}\sigma_i, + \infty \} \end{cases}  }
 
-For a harmful outcome, that is unreported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is
+whereas in Copas et al. (2019), the following was used:
+
+\deqn{\Omega_0(y_i, z_{\alpha}\sigma_i) = \begin{cases}0 &  y_i \in \{ -\infty, -z_{\alpha}\sigma_i \} \cup \{ z_{\alpha}\sigma_i, + \infty \}  \\
+1 & y_i \in  \{ -z_{\alpha}\sigma_i, +z_{\alpha}\sigma_i \} \end{cases}}
+
+Here, \eqn{z_{\alpha} = \texttt{qnorm}(1-\alpha/2)}.
+
+For a harmful outcome, that is unreported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is:
 
 \deqn{  \Omega_4(y_i) =  \begin{cases}0 & y_i > 0 \\
 1 & y_i < 0 \end{cases}  }
+
+
 
 }
 \value{
@@ -100,10 +107,10 @@ data(EpilepsyData)
 Apply the reORBgen function to a beneficial outcome.
 
 feORBbin(
-a=EpilepsyData$`50% Seizure Reduction (T)`,
-c=EpilepsyData$`50% Seizure Reduction (C)`,
+a=EpilepsyData$`Seizure Free (T)`,
+c=EpilepsyData$`Seizure Free (C)`,
 n1=EpilepsyData$`Sample (T)`,
-n1=EpilepsyData$`Sample (C)`,
+n2=EpilepsyData$`Sample (C)`,
 outcome="benefit",
 alpha_ben=0.05,
 init_param = 0.1,
@@ -116,7 +123,7 @@ reORBgen(
 a=EpilepsyData$`Nausea/vomiting (T)`,
 c=EpilepsyData$`Nausea/vomiting (C)`,
 n1=EpilepsyData$`Sample (T)`,
-n1=EpilepsyData$`Sample (C)`,
+n2=EpilepsyData$`Sample (C)`,
 outcome="harm",
 alpha_harm=0.01,
 init_param = 0.1,

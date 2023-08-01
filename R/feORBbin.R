@@ -23,13 +23,30 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, t
   n2_rep <- as.numeric(n2[rep_index])
 
   #CONTINUITY CORRECTION
-  if (length(a_rep == 0) | length(c_rep == 0) > 0){
+  if (length(a_rep == 0) | length(c_rep == 0) > 0){ #Continuity correction
 
-    a_0_index <- c(which(a_rep == 0), which(c_rep == 0)) #WHERE ARE THE ZERO CELL COUNTS
+    a_0_index <- c(which(a_rep == 0), which(c_rep == 0)) #Where are the zero cell counts
     a_rep[a_0_index] <- a_rep[a_0_index] + 0.5
     c_rep[a_0_index] <- c_rep[a_0_index] + 0.5
     n1_rep[a_0_index] <- n1_rep[a_0_index] + 0.5
-    n2_rep[a_0_index] <- n2_rep[a_0_index] + 0.5 #ADD 0.5 TO ALL OF THE CELLS IN THAT STUDY!
+    n2_rep[a_0_index] <- n2_rep[a_0_index] + 0.5 #Add 0.5 to the cell counts with 0
+
+    a_0_both <- which(a_rep == 0.5 & c_rep == 0.5) #If both zero, remove the study!
+
+    if (length(a_0_both)>0){
+
+      a_rep <- a_rep[-a_0_both]
+      c_rep <- c_rep[-a_0_both]
+      n1_rep <- n1_rep[-a_0_both]
+      n2_rep <- n2_rep[-a_0_both]
+    } else {
+
+      a_rep <- a_rep
+      c_rep <- c_rep
+      n1_rep <- n1_rep
+      n2_rep <- n2_rep
+
+    }
 
   } else {
 
@@ -37,7 +54,9 @@ feORBbin <- function(a, c, n1, n2, outcome, init_param, alpha_ben, alpha_harm, t
     c_rep <- c_rep
     n1_rep <- n1_rep
     n2_rep <- n2_rep
+
   }
+
 
 
   # n1, n2 values for the unreported outcomes, needed for imputation of sigma sq for HR studies
