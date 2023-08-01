@@ -8,20 +8,7 @@
 #ORB: correction
 #gen: generic, because it takes in an observed treatment effect, assumed to be
 #normally distributed, with standard error and sample sizes
-
-
-
-#library(rootSolve)
-
-#Takes in  a: cell counts treatment
-#c: cell counts control
-#n1: sample size treatment
-#n2: sample size control
-#init_param: c(log RR, heterogeneity) initial guess of true treatment effect
-#and heterogeneity parameters for initialization of optimization
-#alpha: confidence level
-#true.SE=NULL if we know the standard errors
-#LR.CI=FALSE if we want it to calculate the profile likelihood confidence intervals
+#as well as binary data and mean differences with standard errors
 
 
 reORBgen <- function(a=NULL, c=NULL,
@@ -58,7 +45,7 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
   #Default is to ignore the low risk of bias, but if TRUE then we
-  #use all the unreported studies fro adjustment
+  #use all the unreported studies for adjustment
   #this supposedly can be done for the two smooth selection functions
 
   #Can take in binary counts and calculate log RR: a, c
@@ -67,27 +54,26 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
   #Beneficial outcome
-  #In the original paper by Copas et al., they use a piece-wise selection function
+  #In the original paper by Copas et al. (2019), they use a piece-wise selection function
   #which has P(unreporting)=1 if not-significant, where they consider two tails
   #however, more realistic that, if significant in the "wrong" direction,
-  #even less likley to be reported! hence Copas.oneside = default in which we
-  #dont consider the siginficance in the "wrong direction"
+  #even less likely to be reported! hence Copas.oneside = default in which we
+  #don't consider the significance in the "wrong direction"
 
-  #Ideally have
+  #Selection functions:
   #Copas.twoside from original paper here always two sided by nature of the function
   #Copas.oneside DEFAULT
   #Neg.exp.piecewise
   #Sigmoid.cont
-  #For the first two, L-BFGS-B sometimes doesnt work well so Nelder-Mead needed
+  #For the first two, L-BFGS-B sometimes doesn't work well so Nelder-Mead needed
 
-  #okay so if alpha_ben_one.sided=TRUE, apart from copas.twosides, which is always two sided by nature,
+  #If alpha_ben_one.sided=TRUE, apart from copas.twosides, which is always two sided by nature,
   #we use the one-sided threshold z=1.64
-  #for the one.side copas and for the otehr selectiosn functions
-  #depends on the context but for my simulations this makes most sense since im removeing/creatign ORB based on
-  #the one sided p value
+  #Preferred to used alpha_ben_one.sided=FALSE for all selection functions, so z=1.96
+
   sel.ben <- selection.benefit
 
-  #If we have Exponential.piecewise or Sigmoid.continuous, we also need a weight parameter
+  #If we have Neg.exp.piecewise or Sigmoid.cont, we also need a weight parameter
   w <- weight_param
 
   if (Wald.CI){
@@ -99,9 +85,6 @@ reORBgen <- function(a=NULL, c=NULL,
   method <- opt_method
   lower <- lower
   upper <- upper
-
-  #Significance
-  # z_alpha <- qnorm(1-alpha/2)
 
   if (!is.null(a) & !is.null(c)){
     #Reported outcomes
@@ -132,16 +115,35 @@ reORBgen <- function(a=NULL, c=NULL,
       n1_rep[a_0_index] <- n1_rep[a_0_index] + 0.5
       n2_rep[a_0_index] <- n2_rep[a_0_index] + 0.5 #Add 0.5 to the cell counts with 0
 
+      a_0_both <- which(a_rep == 0.5 & c_rep == 0.5) #If both zero, remove the study!
+
+      if (length(a_0_both)>0){
+
+        a_rep <- a_rep[-a_0_both]
+        c_rep <- c_rep[-a_0_both]
+        n1_rep <- n1_rep[-a_0_both]
+        n2_rep <- n2_rep[-a_0_both]
+      } else {
+
+        a_rep <- a_rep
+        c_rep <- c_rep
+        n1_rep <- n1_rep
+        n2_rep <- n2_rep
+
+      }
+
     } else {
 
       a_rep <- a_rep
       c_rep <- c_rep
       n1_rep <- n1_rep
       n2_rep <- n2_rep
+
     }
 
 
-    #How many studies are reported?
+
+    #How many studies are reported
     N_rep <- length(Rep_index)
 
     #Unreported study sizes, we might have info from n1,n2 or just the total
@@ -678,7 +680,7 @@ reORBgen <- function(a=NULL, c=NULL,
 
 
         #WALD CONFIDENCE INTERVALS
-        a <- alpha_ben #for harm Copas et al use 99% conf level
+        a <- alpha_ben
         #Unadjusted
         fisher_info.u <- solve(-fit.u$hessian)
         s.u <- sqrt(diag(fisher_info.u)[1])
