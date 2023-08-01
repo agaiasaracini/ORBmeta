@@ -9,7 +9,7 @@ The data is originally from the meta-analysis study by Bresnah et al. (2019), an
 }
 \usage{data("EpilepsyData")}
 \format{
-
+  A data frame with 12 observations on the following 36 variables.
   \describe{
     \item{\samp{Sample (T)}}{Sample size in the treatment group}
     \item{\samp{Sample (C)}}{Sample size in the control group}
