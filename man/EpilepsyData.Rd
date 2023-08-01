@@ -64,8 +64,8 @@ data(EpilepsyData)
 Apply the reORBgen function to a beneficial outcome.
 
 reORBgen(
-a = EpilepsyData$`Seizure Freedom (T)`,
-c = EpilepsyData$`Seizure Freedom (C)`,
+a = EpilepsyData$`Seizure Free (T)`,
+c = EpilepsyData$`Seizure Free (C)`,
 n1 = EpilepsyData$`Sample (T)`,
 n1 = EpilepsyData$`Sample (C)`,
 outcome = "benefit",

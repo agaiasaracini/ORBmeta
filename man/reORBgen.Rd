@@ -2,37 +2,38 @@
 \alias{reROBgen}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to adjust for outcome reporting bias (ORB) in an outcome of a meta-analysis of clinical trials for the random effect model
+Function to adjust for outcome reporting bias (ORB) in a random-effect meta-analysis, according to the methodology developed by Copas et al. (2019) with extensions.
 }
 \description{
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the randome effectt model with extention to different selection functions to model the ORB mechanism (see details). The reORBgen function can take in binary outcome data (i.e., the user shoul provide a, c, n1, n2), means and standard errors (i.e., the user should provide mu1, mu2, sd1, sd2, n1, n2), or a treatment effect assumed to be normally distributed (i.e., the user should provide y, s, n1, n2). The outcome variable is reported for some studies, and unreported for others. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology (cite website). The function can adjust both beneficial and harmful outcomes.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effectt model with extention to different selection functions to model the ORB mechanism (see details). The reORBgen function can take in binary outcome data (i.e., the user should provide a, c, n1, n2), means and standard errors (i.e., the user should provide mu1, mu2, sd1, sd2, n1, n2), or a treatment effect assumed to be normally distributed (i.e., the user should provide y, s, n1, n2). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the ORBIT methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function can adjust for ORB in both beneficial and harmful outcomes.
 }
 \usage{
 reORBgen(
-a=NULL,
-c=NULL,
-mu1=NULL,
-mu2=NULL,
-sd1=NULL,
-sd2=NULL,
-y=NULL,
-s=NULL,
+a = NULL,
+c = NULL,
+mu1 = NULL,
+mu2 = NULL,
+sd1 = NULL,
+sd2 = NULL,
+y = NULL,
+s = NULL,
 n1,
 n2,
 outcome,
 init_param,
-alpha_ben=NULL,
+alpha_ben = NULL,
 alpha_ben_one.sided = TRUE,
-alpha_harm=NULL,
-true.SE=NULL,
+alpha_harm = NULL,
+true.SE = NULL,
 LR.CI = FALSE,
 Wald.CI = FALSE,
 selection.benefit = "Copas.oneside",
-weight_param=15,
-opt_method="L-BFGS-B",
+weight_param = 15,
+opt_method = "L-BFGS-B",
 lower = c(-5, 0.00001),
 upper = c(5,5),
 low.risk = FALSE
+)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -63,7 +64,7 @@ low.risk = FALSE
 
 \item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
-\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}. Only needed for beneficial outcomes.}
+\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}. Only needed for beneficial outcomes. Reccomended to use alpha_bet_one.sided = FALSE for all selection functions.}
 
 \item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
@@ -112,7 +113,7 @@ The "Sigmoid.cont" is a further generalizaiton, in which the probability of an u
 \deqn{\Omega_3(y_i, z_{\alpha}\sigma_i, \lambda) =  \frac{1}{1+ e^{\lambda(y_i- z_{\alpha}\sigma_i)}}}
 
 
-For a harmful outcome, the following missing data mechanism is assumed, as proposed originally in Copas et al. (2019): among the unreportd studies at high risk of bias, an unreported study is missing if its treatment effect was positive, assuming that, a positive value means that the treatment has a negative/harmful effect on that outcome. The probability of unreporting is thys
+For a harmful outcome, the following missing data mechanism is assumed, as proposed originally in Copas et al. (2019): among the unreportd studies at high risk of bias ("high"), an unreported study is missing if its treatment effect was positive, assuming that, a positive value means that the treatment has a negative/harmful effect on that outcome. The probability of unreporting is thus
 
 \deqn{  \Omega_4(y_i) =  \begin{cases}0 & y_i > 0 \\
 1 & y_i < 0 \end{cases}  }
@@ -131,7 +132,7 @@ Returns a list containing the following results:
 
 \item{CI_unadjusted_low_WALD}{Lower bound of Wald CI for unadjusted estimate}
 
-\item{CI_unadjusted_up_WALD}{Upper bound of Wald CI for unadjsuted estimate}
+\item{CI_unadjusted_up_WALD}{Upper bound of Wald CI for unadjusted estimate}
 
 \item{mu_adjusted_benefit}{ML estimate of the treatment effect, adjusted for ORB, assuming beneficial outcome}
 
@@ -183,29 +184,106 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 }
 \examples{
 
-Generate a meta-analysis dataset with \code{simualte_meta_data} with ORB.
-dat <- simulate_meta_data(n_studies=15, mu=0.1, n_treatment=50, n_control=50, tau_squared = 0.002, gamma=1.5)
+Generate a meta-analysis dataset for beneficial outcome with ORB using the ORBmeta::simualte_meta_data() function in this package .
 
-Apply the reORBgen function.
+set.seed(123)
+
+dat <- simulate_meta_data(
+n_studies = 15,
+mu = 0.1,
+n_treatment = 50,
+n_control = 50,
+tau_squared = 0.002,
+gamma = 1.5)
+
+Apply the reORBgen function to the simulated beneficial outcome.
+
 reORBgen(
-y=dat$y,
-s=dat$s,
-n1=dat$n_treatment,
-n2=dat$n_control,
-outcome="benefit",
-alpha_ben=0.05,
+a = NULL,
+c = NULL,
+mu1 = NULL,
+mu2 = NULL,
+sd1 = NULL,
+sd2 = NULL,
+y = dat$y,
+s = dat$s,
+n1 = dat$n_treatment,
+n2 = dat$n_control,
+outcome = "benefit",
+alpha_ben = 0.05,
 alpha_ben_one.sided = FALSE,
 init_param = c(0.1, 0.005),
-true.SE=NULL,
-LR.CI=TRUE,
+true.SE = NULL,
+LR.CI = TRUE,
 Wald.CI = TRUE,
 selection.benefit = "Neg.exp.piecewise",
-weight_param=7,
-opt_method="L-BFGS-B",
+weight_param = 7,
+opt_method = "L-BFGS-B",
+lower = c(-5, 0.00001),
+upper = c(5,5),
+low.risk = TRUE)
+
+
+Use a beneficial outcome from the EpilepsyData.
+
+
+reORBgen(
+a = EpilepsyData$`Seizure Free (T)`,
+c = EpilepsyData$`Seizure Free (C)`,
+mu1 = NULL,
+mu2 = NULL,
+sd1 = NULL,
+sd2 = NULL,
+y = NULL,
+s = NULL,
+n1 = EpilepsyData$`Sample (T)``,
+n2 = EpilepsyData$`Sample (C)`,
+outcome = "benefit",
+init_param = c(0.5, 0.1),
+alpha_ben = 0.05,
+alpha_ben_one.sided = FALSE,
+alpha_harm = NULL,
+true.SE = NULL,
+LR.CI = TRUE,
+Wald.CI = FALSE,
+selection.benefit = "Neg.exp.piecewise",
+weight_param = 7,
+opt_method = "L-BFGS-B",
 lower = c(-5, 0.00001),
 upper = c(5,5),
 low.risk = TRUE)
 }
+
+Use a harmful outcome from the EpilepsyData.
+
+
+reORBgen(
+a = EpilepsyData$`Dizziness (T)`,
+c = EpilepsyData$`Dizziness (C)`,
+mu1 = NULL,
+mu2 = NULL,
+sd1 = NULL,
+sd2 = NULL,
+y = NULL,
+s = NULL,
+n1 = EpilepsyData$`Sample (T)``,
+n2 = EpilepsyData$`Sample (C)`,
+outcome = "harm",
+init_param = c(0.5, 0.1),
+alpha_ben = NULL,
+alpha_ben_one.sided = FALSE,
+alpha_harm = 0.01,
+true.SE = NULL,
+LR.CI = TRUE,
+Wald.CI = FALSE,
+opt_method = "L-BFGS-B",
+lower = c(-5, 0.00001),
+upper = c(5,5),
+low.risk = FALSE)
+
+
+}
+
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
