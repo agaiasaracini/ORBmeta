@@ -74,7 +74,7 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
     n_high_rows <- length(which(meta_data_miss$y == "high")) # number of HR
     n_values_to_replace <- min(sample(0:n_high_rows, 1), length(non_high_indices)) # number of values to replace so that never more low than high
     replace_indices <- ifelse(length(non_high_indices) == 1,
-                              non_high_indecies, #if there is only one non-high study, pick that one to be low
+                              non_high_indices, #if there is only one non-high study, pick that one to be low
                               sample(non_high_indices, n_values_to_replace)) #if there are more than one, pick
     meta_data_miss$y[replace_indices] <- "low"
     meta_data_miss$s[replace_indices] <- "low"
@@ -109,5 +109,3 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
   return(meta_data_miss)
 
 }
-
-
