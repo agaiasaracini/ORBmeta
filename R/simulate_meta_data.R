@@ -1,6 +1,5 @@
 
 #' @export
-#'
 
 #To simulate one data set of a meta analysis with  ORB
 simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_control=50, gamma){
@@ -34,34 +33,29 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
                           p_value = numeric(n_studies))
 
 
-  for (i in 1:n_studies){
+  n_treatment <- rep(n_treatment, n_studies)
+  n_control <- rep(n_control, n_studies)
 
-    #Sample sizes
-    n_treatment <- n_treatment
-    n_control <- n_control
 
-    #Generate true treatment effect mean and standard errors
-    theta_i <- rnorm(1, mean = mu, sd = sqrt(tau_squared))
+  # Generate true treatment effect mean and standard errors for all studies at once
+  theta_i <- rnorm(n_studies, mean = mu, sd = sqrt(tau_squared))
+  sigma_i <- sqrt(rchisq(n_studies, df = 2*n_control - 2) / ((n_control - 1) * n_control))
 
-    #Standard errors from Chisquare distribution
+  # Generate observed treatment effect for all studies at once
+  y_i <- rnorm(n_studies, mean = theta_i, sd = sigma_i)
 
-    sigma_i <- sqrt(rchisq(1, df= 2*n_control - 2)/((n_control -1)*n_control))
+  # Calculate one-sided p-values for all studies at once
+  p_i <- pnorm(y_i / sigma_i, lower.tail = FALSE)
+  p_i <- round(p_i, 10)
 
-    #Generate observed treatment effect
-    y_i <- rnorm(1, mean = theta_i, sd = sigma_i)
 
-    #Calculate one-sided p-value
-    p_i <- pnorm(y_i / sigma_i, lower.tail = FALSE)
-    p_i <- round(p_i, 10)
+  # Fill in data frame
+  meta_data$n_control <- n_control
+  meta_data$n_treatment <- n_treatment
+  meta_data$y <- y_i
+  meta_data$s <- sigma_i
+  meta_data$p_value <- p_i
 
-    #Fill in data frame
-    meta_data[i, "n_control"] <- n_control
-    meta_data[i, "n_treatment"] <- n_treatment
-    meta_data[i, "y"] <- y_i
-    meta_data[i, "s"] <- sigma_i
-    meta_data[i, "p_value"] <- p_i
-
-  }
 
   #Missing data mechanism
   meta_data_miss <- meta_data
@@ -69,27 +63,19 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
 
   #probability of being missing, ie 1-prob of selection
   replace_prob <- exp(-4 *as.numeric(meta_data$p_value)^gamma)
-
-  for (j in 1:n_studies){
-
-    if (runif(1) >= replace_prob[j]) {
-      meta_data_miss$y[j] <- "high"
-      meta_data_miss$s[j] <- "high"
-    } else {
-      meta_data_miss$y[j] <- meta_data_miss$y[j]
-      meta_data_miss$s[j] <- meta_data_miss$s[j]
-    }
-
-  }
+  high_index <- runif(n_studies) >= replace_prob
+  meta_data_miss$y[high_index] <- "high"
+  meta_data_miss$s[high_index] <- "high"
 
 
   #among the rest, choose some at random some to be low risk
-  if (length(which(meta_data_miss$y == "high")) > 0){ #if there is at least one HR
-
-    non_high_indices <- which(meta_data_miss$y != "high") #indecies reported
-    n_high_rows <- length(which(meta_data_miss$y == "high")) #number of HR
-    n_values_to_replace <- min(sample(0:n_high_rows, 1), length(non_high_indices)) #so that never more low than high
-    replace_indices <- sample(non_high_indices, n_values_to_replace)
+  if (length(which(meta_data_miss$y == "high")) > 0) { # if there is at least one HR
+    non_high_indices <- which(meta_data_miss$y != "high") # indices reported
+    n_high_rows <- length(which(meta_data_miss$y == "high")) # number of HR
+    n_values_to_replace <- min(sample(0:n_high_rows, 1), length(non_high_indices)) # number of values to replace so that never more low than high
+    replace_indices <- ifelse(length(non_high_indices) == 1,
+                              non_high_indecies, #if there is only one non-high study, pick that one to be low
+                              sample(non_high_indices, n_values_to_replace)) #if there are more than one, pick
     meta_data_miss$y[replace_indices] <- "low"
     meta_data_miss$s[replace_indices] <- "low"
 
@@ -97,9 +83,8 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
 
     meta_data_miss$y <- meta_data_miss$y
     meta_data_miss$s <- meta_data_miss$s
+
   }
-
-
 
   #make sure we have at least 3 studies that are reported otheriwse calculationg of ci unstable
   #pls also v unrealistic that there would be a meta analysis conducted on 2 studies!
