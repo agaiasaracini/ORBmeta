@@ -5,7 +5,6 @@
 #fe: fixed effect
 #ORB: correction
 #bin: takes observed cell counts for treatment and control
-
 #library(rootSolve)
 
 #' @export
