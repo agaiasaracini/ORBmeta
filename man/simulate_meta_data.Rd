@@ -116,6 +116,8 @@ n_control = 50,
 tau_squared = 0.002,
 gamma = 1.5)
 
+dat
+
 #Apply the reORBgen function to the simulated beneficial outcome.
 
 ORBmeta:::reORBgen(
