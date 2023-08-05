@@ -39,7 +39,7 @@ data(WeightData)
 
 #Apply the ORBsens function to the data
 
-ORBsens(
+ORBmeta:::ORBsens(
 p_vals = c(0.7, 0.8),
 eta_vals = NULL,
 a = NULL,
