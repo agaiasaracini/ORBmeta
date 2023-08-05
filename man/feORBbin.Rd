@@ -104,7 +104,7 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 
 data(EpilepsyData)
 
-#Apply the reORBgen function to a beneficial outcome.
+#Apply the feORBbin function to a beneficial outcome.
 
 ORBmeta:::feORBbin(
 a=EpilepsyData$`Seizure Free (T)`,
@@ -117,9 +117,9 @@ init_param = 0.1,
 true.SE=NULL
 )
 
-#Apply the reORBgen function to a harmful outcome.
+#Apply the feORBbin function to a harmful outcome.
 
-ORBmeta:::reORBgen(
+ORBmeta:::feORBbin(
 a=EpilepsyData$`Nausea/vomiting (T)`,
 c=EpilepsyData$`Nausea/vomiting (C)`,
 n1=EpilepsyData$`Sample (T)`,
