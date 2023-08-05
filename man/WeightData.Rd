@@ -37,7 +37,7 @@ Kristjansson, B., Petticrew, M., MacDonald, B., Krasevec, J., Janzen, L., Greenh
 
 data(WeightData)
 
-Apply the ORBsens function to the data
+#Apply the ORBsens function to the data
 
 ORBsens(
 p_vals = c(0.7, 0.8),
