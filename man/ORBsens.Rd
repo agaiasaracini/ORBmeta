@@ -148,14 +148,14 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 }
 \examples{
 
-Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a beneficial outcome from PPHData.
+#Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a beneficial outcome from PPHData.
 
 p1.grid <- seq(0.7, 1, by=0.1)
 p2.grid <- seq(0.7, 1, by=0.1)
 grid <- expand.grid(p1 = p1.grid, p2 = p2.grid)
 values.ex1 <- matrix(data = apply(grid,
                                   1,
-                                  function(p) ORBsens(p,
+                                  function(p) ORBmeta:::ORBsens(p,
                                                       a=PPHData$`PPH (C)`,
                                                       c=PPHData$`PPH (T)`,
                                                       n1=PPHData$`Sample (C)`,
@@ -188,14 +188,14 @@ filled.contour(x=p1.grid,
 							 main="ORB-adjusted Treatment Effect")
 
 
-Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a harmful outcome from EpilepsyData.
+#Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a harmful outcome from EpilepsyData.
 
 eta1.grid <- seq(0.7, 1, by=0.1)
 eta2.grid <- seq(0.7, 1, by=0.1)
 grid <- expand.grid(eta1 = eta1.grid, eta2 = eta2.grid)
 values <- matrix(data = apply(grid,
                               1,
-                              function(eta) ORBsens(p_vals=NULL,
+                              function(eta) ORBmeta:::ORBsens(p_vals=NULL,
                                                     eta,
                                                     a=EpilepsyData$`Somnolence (T)`,
                                                     c=EpilepsyData$`Somnolence (C)`,

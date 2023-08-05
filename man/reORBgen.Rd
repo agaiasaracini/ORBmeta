@@ -184,11 +184,11 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 }
 \examples{
 
-Generate a meta-analysis dataset for beneficial outcome with ORB using the ORBmeta::simualte_meta_data() function in this package .
+#Generate a meta-analysis dataset for beneficial outcome with ORB using the ORBmeta:::simualte_meta_data() function in this package .
 
 set.seed(123)
 
-dat <- simulate_meta_data(
+dat <- ORBmeta:::simulate_meta_data(
 n_studies = 15,
 mu = 0.1,
 n_treatment = 50,
@@ -196,9 +196,9 @@ n_control = 50,
 tau_squared = 0.002,
 gamma = 1.5)
 
-Apply the reORBgen function to the simulated beneficial outcome.
+#Apply the reORBgen function to the simulated beneficial outcome.
 
-reORBgen(
+ORBmeta:::reORBgen(
 a = NULL,
 c = NULL,
 mu1 = NULL,
@@ -224,10 +224,10 @@ upper = c(5,5),
 low.risk = TRUE)
 
 
-Use a beneficial outcome from the EpilepsyData.
+#Use a beneficial outcome from the EpilepsyData.
 
 
-reORBgen(
+ORBmeta:::reORBgen(
 a = EpilepsyData$`Seizure Free (T)`,
 c = EpilepsyData$`Seizure Free (C)`,
 mu1 = NULL,
@@ -254,10 +254,10 @@ upper = c(5,5),
 low.risk = TRUE)
 
 
-Use a harmful outcome from the EpilepsyData.
+#Use a harmful outcome from the EpilepsyData.
 
 
-reORBgen(
+ORBmeta:::reORBgen(
 a = EpilepsyData$`Dizziness (T)`,
 c = EpilepsyData$`Dizziness (C)`,
 mu1 = NULL,
