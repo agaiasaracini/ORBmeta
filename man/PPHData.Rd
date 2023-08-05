@@ -37,7 +37,7 @@ data(PPHData)
 
 Apply the ORBsens function to the data
 
-ORBsens(
+ORBmeta:::ORBsens(
 p_vals = c(0.7, 0.7),
 eta_vals = NULL,
 a = PPHData$`Sample (C)`,
