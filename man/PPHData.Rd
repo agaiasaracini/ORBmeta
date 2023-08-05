@@ -35,7 +35,7 @@ Liabsuetrakul, T., Choobun, T., Peeyananjarassri, K., and Islam, M. (2007). Prop
 
 data(PPHData)
 
-Apply the ORBsens function to the data
+#Apply the ORBsens function to the data
 
 ORBmeta:::ORBsens(
 p_vals = c(0.7, 0.7),
