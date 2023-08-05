@@ -11,13 +11,13 @@ The data is originally from the meta-analysis study by  Kristjansson et al. (200
 \format{
   A data frame with 6 observations on the following 7 variables.
   \describe{
-    \item{\code{N_1}}{Sample size in the treatment group}
-    \item{\code{N_2}}{Sample size in the control group}
-    \item{\code{Tot_N}}{Total sample size}
-    \item{\code{Mean_1}}{Average weight gain in the treatment group}
-    \item{\code{Sd_1}}{Observed standard deviation in the treatment group}
-    \item{\code{Mean_2}}{Average weight gain in the control group}
-    \item{\code{Sd_2}}{Observed standard deviation in the control group}
+    \item{\code{n1}}{Sample size in the treatment group}
+    \item{\code{n2}}{Sample size in the control group}
+    \item{\code{totn}}{Total sample size}
+    \item{\code{mean1}}{Average weight gain in the treatment group}
+    \item{\code{sd1}}{Observed standard deviation in the treatment group}
+    \item{\code{mean2}}{Average weight gain in the control group}
+    \item{\code{sd2}}{Observed standard deviation in the control group}
   }
 }
 \details{
@@ -44,13 +44,13 @@ p_vals = c(0.7, 0.8),
 eta_vals = NULL,
 a = NULL,
 c = NULL,
-mu1 = WeightData$Mean_1,
-mu2 = WeightData$Mean_2,
-sd1 = WeightData$Sd_1,
-sd2 = WeightData$Sd_2,
-n1 = WeightData$N_1,
-n2 = WeightData$N_2,
-ntot = WeightData$Tot_N,
+mu1 = WeightData$mean1,
+mu2 = WeightData$mean2,
+sd1 = WeightData$sd1,
+sd2 = WeightData$sd2,
+n1 = WeightData$n1,
+n2 = WeightData$n2,
+ntot = WeightData$totn,
 sign_level = 0.05,
 init_param = c(0.5, 0.6, 0.7, 0.7),
 outcome = "benefit",
