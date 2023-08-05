@@ -5,7 +5,7 @@
 Meta-analysis of topiramate add-on therapy for drug-resistant focal epilepsy, in the presence of outcome reporting bias (ORB) and risk of bias classification done according to the ORBIT methodology.
 }
 \description{
-The data is originally from the meta-analysis study by Bresnah et al. (2019), and is used in Copas et al. (2019) to shwcase their ORB adjustment method. The study investigates the effect of Topiramate, an antiepileptic drug first marketed in 1996, when used as an add-on treatment for drug-resistant focal epilepsy. The meta-analysis consists of 12 studies and 14 outcomes, 2 beneficial ones and 12 harmful ones. Each outcome includes the number of cases in the control (C) and treatment (T) group. Each unreported outcome for each study is classified as high risk of bias ("high") or low risk of bias ("low") by the ORBIT methdology.
+The data is originally from the meta-analysis study by Bresnah et al. (2019), and is used in Copas et al. (2019) to showcase their ORB adjustment method. The study investigates the effect of Topiramate, an antiepileptic drug first marketed in 1996, when used as an add-on treatment for drug-resistant focal epilepsy. The meta-analysis consists of 12 studies and 14 outcomes, 2 beneficial ones and 12 harmful ones. Each outcome includes the number of cases in the control (C) and treatment (T) group. Each unreported outcome for each study is classified as high risk of bias ("high") or low risk of bias ("low") by the ORBIT methdology.
 }
 \usage{data("EpilepsyData")}
 \format{
@@ -24,7 +24,7 @@ The data is originally from the meta-analysis study by Bresnah et al. (2019), an
     \item{\samp{Headache (T)}}{Harmful outcome: cases of headache in the treatment group}
     \item{\samp{Headache (C)}}{Harmful outcome: cases of headache in the control group}
     \item{\samp{Nausea/vomiting (T)}}{Harmful outcome: cases of nausea/vomiting in the treatment group}
-    \item{\samp{Nausea/vomiting (C)}}{cases of nausea/vomiting in the control group}
+    \item{\samp{Nausea/vomiting (C)}}{Harmful outcome: cases of nausea/vomiting in the control group}
     \item{\samp{Paraesthesias (T)}}{Harmful outcome: cases of paraesthesias in the treatment group}
     \item{\samp{Paraesthesias (C)}}{Harmful outcome: cases of paraesthesias in the control group}
     \item{\samp{Weight loss (T)}}{Harmful outcome: cases of weight loss in the treatment group}
@@ -61,7 +61,7 @@ Copas, J., Marson, A., Williamson, P., and Kirkham, J. (2019). Model-based sensi
 
 data(EpilepsyData)
 
-Apply the reORBgen function to a beneficial outcome.
+#Apply the reORBgen function to a beneficial outcome.
 
 reORBgen(
 a = EpilepsyData$`Seizure Free (T)`,
@@ -82,7 +82,7 @@ lower = c(-5, 0.00001),
 upper = c(5,5),
 low.risk = TRUE)
 
-Apply the reORBgen function to a harmful outcome.
+#Apply the reORBgen function to a harmful outcome.
 
 reORBgen(
 a = EpilepsyData$`Nausea/vomiting (T)`,
