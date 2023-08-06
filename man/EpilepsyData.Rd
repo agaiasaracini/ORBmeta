@@ -51,7 +51,7 @@ The data is originally from the meta-analysis study by Bresnah et al. (2019), an
 }
 \references{
 
-Bresnah, R., Hounsome, J., Jette, N., Hutton, J., and Marson, A. (2019). Topiramate addâon therapy for drug-resistant focal epilepsy. Cochrane Library.
+Bresnah, R., Hounsome, J., Jette, N., Hutton, J., and Marson, A. (2019). Topiramate add-on therapy for drug-resistant focal epilepsy. Cochrane Library.
 
 Copas, J., Marson, A., Williamson, P., and Kirkham, J. (2019). Model-based sensitivity analysis for outcome reporting bias in the meta analysis of benefit and harm outcomes. Statistical Methods in Medical Research, 28, 889–903.
 
