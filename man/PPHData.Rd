@@ -5,7 +5,7 @@
 Meta-analysis of prophylactic use of ergot alkaloids for prevention of post partum hemmorage (PPH), in the presence of outcome reporting bias (ORB) and risk of bias classification done according to the ORBIT methodology.
 }
 \description{
-The data is originally from the meta-analysis study by Liabsuetrakul et al. (2007), and is used in Copas et al. (2014) to shwcase their ORB adjustment method. The study investigates the effectiveness and safety of prophylactic use of ergot alkaloids in the third stage of labor compared with non-uterotonic agents for the prevention of PPH. The study compares control to treatment and treats PPH as a beneficial outcome. The meta-analysis includes 4 studies which report the number of cases of PPH in the control and treatment groups. Out of the 5 studies which do not report the outcome, 4 are classified as low risk of bias ("low"), and 1 as high risk of bias ("high") by the ORBIT methodology.
+The data is originally from the meta-analysis study by Liabsuetrakul et al. (2007), and is used in Copas et al. (2014) to shwcase their ORB adjustment method. The study investigates the effectiveness and safety of prophylactic use of ergot alkaloids in the third stage of labor compared with non-uterotonic agents for the prevention of PPH. The study compares control to treatment and thus treats the treatment effect as a beneficial outcome. The meta-analysis includes 4 studies which report the number of cases of PPH in the control and treatment groups. Out of the 5 studies which do not report the outcome, 4 are classified as low risk of bias ("low"), and 1 as high risk of bias ("high") by the ORBIT methodology.
 }
 \usage{data("PPHData")}
 \format{

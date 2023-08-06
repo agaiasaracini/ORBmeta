@@ -63,7 +63,7 @@ data(EpilepsyData)
 
 #Apply the reORBgen function to a beneficial outcome.
 
-reORBgen(
+ORBmeta:::reORBgen(
 a = EpilepsyData$`Seizure Free (T)`,
 c = EpilepsyData$`Seizure Free (C)`,
 n1 = EpilepsyData$`Sample (T)`,
@@ -84,7 +84,7 @@ low.risk = TRUE)
 
 #Apply the reORBgen function to a harmful outcome.
 
-reORBgen(
+ORBmeta:::reORBgen(
 a = EpilepsyData$`Nausea/vomiting (T)`,
 c = EpilepsyData$`Nausea/vomiting (C)`,
 n1 = EpilepsyData$`Sample (T)`,
