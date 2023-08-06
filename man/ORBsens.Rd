@@ -5,7 +5,7 @@
 Function to adjust for outcome reporting bias (ORB) in a random-effect meta-analysis and conduct sensitivity analyses, according to the methodology developed by Copas et al. (2014) with extensions.
 }
 \description{
-An implementation of the Copas et al. (2014) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model for beneficial outcomes, and extention to harmful outcomes (see details). The ORBsens function can take in binary outcome data (i.e., the user should provide \code{a}, \code{c}, \code{n1}, \code{n2}), as well as means and standard errors (i.e., the user should provide \code{mu1}, \code{mu2}, \code{sd1}, \code{sd2}, \code{n1}, \code{n2}). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the ORBIT methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function includes uncertainty in the risk of bias classification through the \code{p_vals} or \code{eta_vals} for beneficial and harmful outcomes respectively.
+An implementation of the Copas et al. (2014) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model for beneficial outcomes, and extention to harmful outcomes (see Details). The \code{ORBsens} function can take in binary outcome data (i.e., the user should provide \code{a}, \code{c}, \code{n1}, \code{n2}), as well as means and standard errors (i.e., the user should provide \code{mu1}, \code{mu2}, \code{sd1}, \code{sd2}, \code{n1}, \code{n2}). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the ORBIT methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function includes uncertainty in the risk of bias classification through the \code{p_vals} or \code{eta_vals} for beneficial and harmful outcomes respectively (see Details).
 }
 \usage{
 ORBsens(
@@ -35,17 +35,17 @@ upper = c(10, 10, 1, 1)
 
   \item{eta_vals}{A vector of size 2 specifiying the probabilities \eqn{\eta_1} and \eqn{\eta_2} (see Details).}
 
-\item{a}{A vector of observed counts for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+\item{a}{A vector of observed counts for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the outcome, the entries are either "high" or "low".}
 
-\item{c}{A vector of observed counts for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the counts in the outcome of interest, the entries are either "high" or "low".}
+\item{c}{A vector of observed counts for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the outcome, the entries are either "high" or "low".}
 
-\item{mu1}{A vector of observed means for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the means in the outcome of interest, the entries are either "high" or "low".}
+\item{mu1}{A vector of observed means for the outcome of interest in the treatment group for each study in the meta-analysis. For the studies which do not report the outcome, the entries are either "high" or "low".}
 
-\item{mu2}{A vector of observed means for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the means in the outcome of interest, the entries are either "high" or "low".}
+\item{mu2}{A vector of observed means for the outcome of interest in the control group for each study in the meta-analysis. For the studies which do not report the outcome, the entries are either "high" or "low".}
 
-\item{sd1}{A vector of observed standard errors for the mean in the treatment group for each study in the meta-analysis. For the studies which do not report the mean/standard error in the outcome of interest, the entries are either "high" or "low".}
+\item{sd1}{A vector of observed standard errors for the mean in the treatment group for each study in the meta-analysis. For the studies which do not report outcome, the entries are either "high" or "low".}
 
-\item{sd2}{A vector of observed standard errors for the mean in the control group for each study in the meta-analysis. For the studies which do not report the mean/standard error in the outcome of interest, the entries are either "high" or "low".}
+\item{sd2}{A vector of observed standard errors for the mean in the control group for each study in the meta-analysis. For the studies which do not report the outcome, the entries are either "high" or "low".}
 
 \item{n1}{A vector of sample sizes in the treatment group for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.}
 
@@ -55,7 +55,7 @@ upper = c(10, 10, 1, 1)
 A vector of total sample sizes for each study in the meta-analysis. The sample sizes need to be reported for all studies in the meta-analysis.
 }
   \item{sign_level}{
-he value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} for beneficial outcomes, and \eqn{\alpha=0.01} for harmful outcomes according to Copas et al. (2019).
+The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} for beneficial outcomes, and \eqn{\alpha=0.01} for harmful outcomes according to Copas et al. (2019).
 }
   \item{init_param}{
 A vector of length 4, containing the values to be used for initialization of the joint optimization. For beneficial outcomes these are:  \code{init_param = c ( \eqn{\mu}, \eqn{\tau^2}, \eqn{\alpha}, \eqn{\beta} )}.For harmful outcomes these are: \code{init_param = c( \eqn{\mu}, \eqn{\tau^2}, \eqn{\alpha}, \eqn{\gamma} )} See Details for definitions of \eqn{\alpha}, \eqn{\beta} and \eqn{\gamma}.
@@ -64,19 +64,19 @@ A vector of length 4, containing the values to be used for initialization of the
 A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").
 }
   \item{opt_method}{
-A character specifying the method used in the \eqn{\texttt{optim()}} function for the joint optimization. Reccomended is "L-BFGS-B".
+A character specifying the method used in the \eqn{\texttt{optim()}} function for the joint optimization of the above parameters. Reccomended is "L-BFGS-B".
 }
   \item{lower}{
-A vector of length 4 containing the lower bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(-10, 0.05, 0.05, 0.05)}.
+A vector of length 4 containing the lower bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(-10, 0.05, 0.05, 0.05)}. The lower bounds are specified only if the "L-BFGS-B" optimization method is used.
 }
   \item{upper}{
-A vector of length 4 containing the upper bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(10, 10, 1, 1)}.
+A vector of length 4 containing the upper bounds for the optimization problem for \eqn{\mu, \tau^2, \alpha, \beta} or \eqn{\mu, \tau^2, \alpha, \gamma}. Default is \code{c(10, 10, 1, 1)}. The upper bounds are specified only if the "L-BFGS-B" optimization method is used.
 }
 
 }
 \details{
 
-For a beneficial outcome, the log-likelihood to be maximized is
+For a beneficial outcome, the log-likelihood to be maximized to obtain an ORB-adjusted estimate of the treatment effect \eqn{\mu} is
 
 \deqn{
 
@@ -90,7 +90,7 @@ N_{R \cap s} \log (\beta) + \\
 
 }
 
-where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\beta} is the probability an outcome being reported given that it was measured and non-significant. The \eqn{\rho_{1}, \rho_{2}} reliability parameters are treated as fixed and are respectively defined as the probability that an outcome is classified as HR given that it was measured, non-significant, and unreported, and the probability that an outcome is classified as LR given that it was not measured and was not reported. See Copas et al. (2014) for the derivation.
+where \eqn{\mu} the global treatment effect, \eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\beta} is the probability an outcome being reported given that it was measured and non-significant. The \eqn{\rho_{1}, \rho_{2}} reliability parameters are treated as fixed. \eqn{\rho_{1}} is defined as the probability that an outcome is classified as high risk of bias given that it was measured, non-significant, and unreported. \eqn{\rho_{2}} is the probability that an outcome is classified as low risk of bias given that it was not measured and was not reported. \eqn{Q_i} is the probability of the observed treatment effect \eqn{y_i} being significant, while \eqn{f_i(y_i)} is the pdf of a normal distribution. See Copas et al. (2014) for more details and for the derivation of the log-likelihood function.
 
 For a harmful outcome, the log-likelihood to be maximized is
 
@@ -103,7 +103,7 @@ L_{\eta_{1}, \eta_{2}} (\mu, \tau^2, \alpha, \gamma)  = \\
 
 }
 
-where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\gamma} is the probability an outcome being reported given that it was measured and poistive. The \eqn{\eta_{1}, \eta_{2}} reliability parameters are treated as fixed and are respectively defined as the probability that an outcome is classified as HR given that it was measured, positive, and unreported, and the probability that an outcome is classified as LR given that it was not measured and was not reported.
+where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\gamma} is the probability an outcome being reported given that it was measured and poistive. The \eqn{\eta_{1}, \eta_{2}} reliability parameters are treated as fixed. \eqn{\eta_{1}} is defined as the probability that an outcome is classified as high risk of bias given that it was measured, positive, and unreported. \eqn{\eta_{2}} is the probability that an outcome is classified as low risk of bias given that it was not measured and was not reported.
 
 
 }
