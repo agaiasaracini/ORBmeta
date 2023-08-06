@@ -103,7 +103,7 @@ L_{\eta_{1}, \eta_{2}} (\mu, \tau^2, \alpha, \gamma)  = \\
 
 }
 
-where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\gamma} is the probability an outcome being reported given that it was measured and poistive. The \eqn{\eta_{1}, \eta_{2}} reliability parameters are treated as fixed. \eqn{\eta_{1}} is defined as the probability that an outcome is classified as high risk of bias given that it was measured, positive, and unreported. \eqn{\eta_{2}} is the probability that an outcome is classified as low risk of bias given that it was not measured and was not reported.
+where \eqn{\mu} the global treatment effect,\eqn{\tau^2} is the the between-study heterogeneity, \eqn{\alpha} is the probability of an outcome being measured, and \eqn{\gamma} is the probability an outcome being reported given that it was measured and positive. The \eqn{\eta_{1}, \eta_{2}} reliability parameters are treated as fixed. \eqn{\eta_{1}} is defined as the probability that an outcome is classified as high risk of bias given that it was measured, positive, and unreported. \eqn{\eta_{2}} is the probability that an outcome is classified as low risk of bias given that it was not measured and was not reported.
 
 
 }
