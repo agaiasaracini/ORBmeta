@@ -2,18 +2,18 @@
 \alias{simulate_meta_data}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Simulate Meta-Analysis Data with ORB
+Simulate Meta-Analysis Data with Outcome Reporting Bias (ORB)
 }
 \description{
 The \code{simulate_meta_data} function generates simulated data for a meta-analysis for a beneficial outcome of a randomized controlled trials (RCTs) so as to include ORB. It creates a dataset of studies with the following variables: sample sizes in treatment and control, observed treatment effects, standard errors, and one-sided p-values.
 
-First, it generates a meta-analysis according to the random-effect model, where all studies have the same sample sizes for treatment and control. Then, it removes studies to simulate ORB and replaces some treatment effects and standard errors with high risk of bias ("high") or low risk of bias ("low").
+First, it generates a meta-analysis according to the random effect model, where all studies have the same sample sizes for treatment and control. Then, it removes studies to simulate ORB and replaces some treatment effects and standard errors with high risk of bias ("high") or low risk of bias ("low").
 
 Unreported studies at high risk of bias ("high") are removed according to the following selection function: \deqn{exp(-4 \cdot p_i^\gamma)} used in Copas and Henmi (2010), representing the probability of reporting the outcome as a function of the one-sided p-value: \deqn{p_i = \Phi(- \frac{y_i}{\sigma_i})}.
 
-Among the studies which are left reported, a number between 1 and the number of "high" ones is chosen to classified as low risk of bias ("low").
+Among the studies which are left reported, a number between 0 and the number of "high" ones is chosen to classified as low risk of bias ("low").
 
-If there are less than 3 reported studies, the function chooses at random among the "high" and "low" ones some to be turned back into reported, so as to guarantee that at least 3 are reported.
+If there are less than 3 reported studies, the function chooses at random among the "high" and "low" ones some to be kept reported, so as to guarantee that at least 3 are reported.
 
 
 }
@@ -46,14 +46,14 @@ The sample size in the treatment. This will be the same across all studies.
 }
 
 \item{gamma}{
-The parameter for ORB modeling, controlling the probability of studies reporting "high". Higher values of gamma result in a higher probability of reporting "high". Based on Copas and Henmi (2010).
+The parameter \eqn{\gamma} for ORB modeling, controlling the probability of studies reporting "high". Higher values of gamma result in a higher probability of reporting "high". Based on Copas and Henmi (2010)'s equation.
 }
 
 
 }
 \details{
 
-The y treatment effect is assumed to for a beneficial outcomes, where a positive/significant value indicates a beneficial effect of treatment on that outcome.
+The y treatment effect is assumed to for a beneficial outcome, where a positive/significant value indicates a beneficial effect of treatment on that outcome.
 
 }
 \value{
