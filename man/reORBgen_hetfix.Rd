@@ -6,7 +6,7 @@ Version of the reORBgen() function when the heterogeneity variance \eqn{\tau^2} 
 }
 \description{
 
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effectt model with extention to different selection functions to model the ORB mechanism, when treating the \eqn{\tau^2} as a known and fixed parameter. Hence, all optimization methods are one-dimesional only for \eqn{\mu}.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model with extention to different selection functions to model the ORB mechanism, when treating the \eqn{\tau^2} as a known and fixed parameter. Hence, all optimization methods are one-dimesional only for \eqn{\mu}.
 
 }
 \usage{
@@ -97,7 +97,7 @@ tau_squared_fixed
 }
 \details{
 
-See details of reORBgen()
+See details of \code{reORBgen()}
 
 }
 \value{
@@ -108,7 +108,7 @@ Returns a list containing the following results:
 
 \item{LR_mu_unadjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
 
-\item{LR_mu_unadjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for unadjusted estimate}
+\item{LR_mu_unadjusted_up}{Upper bound of LR CI for unadjusted estimate}
 
 \item{CI_unadjusted_low_WALD}{Lower bound of Wald CI for unadjusted estimate}
 
@@ -118,9 +118,9 @@ Returns a list containing the following results:
 
 \item{mu_adjusted_harm}{ML estimate of the treatment effect, adjusted for ORB, assuming harmful outcome}
 
-\item{LR_mu_adjusted_low}{Lower bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+\item{LR_mu_adjusted_low}{Lower bound of LR CI for adjusted estimate}
 
-\item{LR_mu_adjusted_up}{Upper bound of likelihood ratio (LR) confidence interval (CI) for adjusted estimate}
+\item{LR_mu_adjusted_up}{Upper bound of LR CI for adjusted estimate}
 
 \item{average_sigma_squared_unadjusted}{Average \eqn{\sigma_{i}^2} across the reported studies}
 
