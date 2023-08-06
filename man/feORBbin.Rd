@@ -5,7 +5,7 @@
 Function to adjust for outcome reporting bias (ORB) in a fixed-effect meta-analysis, according to the methodology developed by Copas et al. (2019).
 }
 \description{
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the fixed-effect model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes are required for the studies which do not report the observed treatment effect. The risk of bias classification should be done according to the ORBIT methodology. The function can adjust both beneficial and harmful outcomes.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the fixed-effect model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes of the studies which do not report the observed treatment effect are required. The risk of bias classification should be done according to the ORBIT methodology. The function can adjust both beneficial and harmful outcomes.
 }
 \usage{
 feORBbin(
@@ -33,13 +33,13 @@ true.SE=NULL
 
 \item{outcome}{A character indicating whether the outcome of interest is beneficial ("benefit") or harmful ("harm").}
 
-\item{init_param}{A number to be used for the initialization of the optimization of \eqn{\mu}, i.e., the true treatment effect in the fixed effect model}
+\item{init_param}{A number to be used for the initialization of the optimization of \eqn{\mu}, i.e., the true treatment effect in the fixed effect model.}
 
 \item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
 \item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
-\item{true.SE}{A vector of the observed standard errors of the treatment effects (log RR) for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be provided.}
+\item{true.SE}{A vector of the observed standard errors of the treatment effects (log RR) for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be calculated.}
 
 }
 \details{
@@ -56,7 +56,7 @@ whereas in Copas et al. (2019), the following was used:
 
 Here, \eqn{z_{\alpha} = \texttt{qnorm}(1-\alpha/2)}.
 
-For a harmful outcome, that is unreported and classified as high risk of bias it is assumed that the probability of an outcome to be unreported is:
+For a harmful outcome that is unreported and classified as high risk of bias it is assumed that the probability of an outcome being unreported is:
 
 \deqn{  \Omega_4(y_i) =  \begin{cases}0 & y_i > 0 \\
 1 & y_i < 0 \end{cases}  }
@@ -66,23 +66,23 @@ For a harmful outcome, that is unreported and classified as high risk of bias it
 }
 \value{
 
-\item{logRR_unadjusted}{MLE of the logRR common effect, unadjusted for ORB}
+\item{logRR_unadjusted}{MLE of the true treatment effect \eqn{\mu} (here log RR) unadjusted for ORB}
 \item{CI_unadjusted_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the unadjusted estimate}
 \item{CI_unadjusted_up}{Upper bound of the LR CI for the unadjusted estimate}
 \item{CI_unadjusted_low_WALD}{Lower bound of the Wald CI for the unadjusted estimate}
 \item{CI_unadjusted_up_WALD}{Upper bound of the Wald CI for the unadjusted estimate}
-\item{logRR_adjusted_benefit}{MLE of the logRR common effect, adjusted for ORB when the outcome is beneficial}
-\item{logRR_adjusted_harm}{MLE of the logRR common effect, adjusted for ORB when the outcome is harmful}
-\item{CI_adjusted_benefit_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a beneficial outcome}
-\item{CI_adjusted_benefit_up}{Upper bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a beneficial outcome}
-\item{CI_adjusted_harm_low}{Lower bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a harmful outcome}
-\item{CI_adjusted_harm_up}{Upper bound of the likelihood ratio (LR) confidence interaval (CI) for the adjusted estimate of a harmful outcome}
+\item{logRR_adjusted_benefit}{MLE of the true treatment effect \eqn{\mu} (here log RR) adjusted for ORB when the outcome is beneficial}
+\item{logRR_adjusted_harm}{MLE of the true treatment effect \eqn{\mu} (here log RR) adjusted for ORB when the outcome is harmful}
+\item{CI_adjusted_benefit_low}{Lower bound of the LR CI for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_benefit_up}{Upper bound of the LR CI for the adjusted estimate of a beneficial outcome}
+\item{CI_adjusted_harm_low}{Lower bound of the LR CI for the adjusted estimate of a harmful outcome}
+\item{CI_adjusted_harm_up}{Upper bound of the LR CI for the adjusted estimate of a harmful outcome}
 \item{CI_adjusted_benefit_low_WALD}{Lower bound of the Wald CI for the adjusted estimate of a beneficial outcome}
 \item{CI_adjusted_benefit_up_WALD}{Upper bound of the Wald CI for the adjusted estimate of a beneficial outcome}
 \item{CI_adjusted_harm_low_WALD}{Lower bound of the Wald CI for the adjusted estimate of a harmful outcome}
 \item{CI_adjusted_harm_up_WALD}{Upper bound of the Wald CI for the adjusted estimate of a harmful outcome}
-\item{logRR}{Individual logRR of the observed treatment effects for each study}
-\item{p_value}{Individual one-sided p-values for each study}
+\item{logRR}{Individual log RR estimates of the observed treatment effects for each study (reported ones)}
+\item{p_value}{Individual one-sided p-values for each study (reported ones)}
 
 }
 \references{
