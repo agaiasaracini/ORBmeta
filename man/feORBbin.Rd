@@ -2,10 +2,10 @@
 \alias{feORBbin}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to adjust for outcome reporting bias (ORB) in a fixed-effect meta-analysis, according to the methodology developed by Copas et al. (2019).
+Function to adjust for outcome reporting bias (ORB) in a fixed effect meta-analysis, according to the methodology developed by Copas et al. (2019).
 }
 \description{
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the fixed-effect model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes of the studies which do not report the observed treatment effect are required. The risk of bias classification should be done according to the ORBIT methodology. The function can adjust both beneficial and harmful outcomes.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the fixed effect model. The function takes in binary outcome data and calculates the log RR. The studies for which the observed outcome and standard error are missing should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. For the method to work, the sample sizes of the studies which do not report the observed treatment effect are required. The risk of bias classification should be done according to the Outcome Reporting Bias in Trials (ORBIT) methodology. The function can adjust both beneficial and harmful outcomes.
 }
 \usage{
 feORBbin(
@@ -37,14 +37,14 @@ true.SE=NULL
 
 \item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
-\item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
+\item{alpha_harm}{The value for the desired confidence level if the outcome of interest is harmful, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
 \item{true.SE}{A vector of the observed standard errors of the treatment effects (log RR) for all studies in the meta-analysis, including the ones for which we have "high" or "low", if known. Of note, this means that the standard errors of the log RR need to be calculated.}
 
 }
 \details{
 
-The function implements the Copas et al. (2019) methodology for the fixed-effect model, with the only difference that, for a beneficial outcome classified as high risk of bias, the following function for the probability of unreporting is used:
+The function implements the Copas et al. (2019) methodology for the fixed effect model, with the only difference that, for a beneficial outcome classified as high risk of bias, the following function for the probability of unreporting is used:
 
 \deqn{  \Omega_1(y_i, z_{\alpha}\sigma_i) =  \begin{cases}1 & y_i \in \{ - \infty, z_{\alpha}\sigma_i \} \\
 0 & y_i \in \{ z_{\alpha}\sigma_i, + \infty \} \end{cases}  }

@@ -2,12 +2,12 @@
 \alias{simulate_meta_data}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Simulate Meta-Analysis Data with Outcome Reporting Bias (ORB)
+Simulate meta-analysis data with outcome reporting bias (ORB).
 }
 \description{
 The \code{simulate_meta_data} function generates simulated data for a meta-analysis for a beneficial outcome of a randomized controlled trials (RCTs) so as to include ORB. It creates a dataset of studies with the following variables: sample sizes in treatment and control, observed treatment effects, standard errors, and one-sided p-values.
 
-First, it generates a meta-analysis according to the random effect model, where all studies have the same sample sizes for treatment and control. Then, it removes studies to simulate ORB and replaces some treatment effects and standard errors with high risk of bias ("high") or low risk of bias ("low").
+First, it generates a meta-analysis according to the random effects model, where all studies have the same sample sizes for treatment and control. Then, it removes studies to simulate ORB and replaces some treatment effects and standard errors with high risk of bias ("high") or low risk of bias ("low").
 
 Unreported studies at high risk of bias ("high") are removed according to the following selection function: \deqn{exp(-4 \cdot p_i^\gamma)} used in Copas and Henmi (2010), representing the probability of reporting the outcome as a function of the one-sided p-value: \deqn{p_i = \Phi(- \frac{y_i}{\sigma_i})}.
 
@@ -53,7 +53,7 @@ The parameter \eqn{\gamma} for ORB modeling, controlling the probability of stud
 }
 \details{
 
-The y treatment effect is assumed to for a beneficial outcome, where a positive/significant value indicates a beneficial effect of treatment on that outcome.
+The y treatment effect is assumed to be for a beneficial outcome, where a positive/significant value indicates a beneficial effect of treatment on that outcome.
 
 }
 \value{

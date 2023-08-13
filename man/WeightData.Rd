@@ -2,10 +2,10 @@
 \alias{WeightData}
 \docType{data}
 \title{
-Meta-analysis of the effect of school feeding on weight gain, in the presence of outcome reporting bias (ORB) and risk of bias classification done according to the ORBIT methodology.
+Meta-analysis of the effect of school feeding on weight gain, in the presence of outcome reporting bias (ORB).
 }
 \description{
-The data is originally from the meta-analysis study by  Kristjansson et al. (2007), and is used in Copas et al. (2014) to shwcase their ORB adjustment method. The study investigates the effect of school feeding for improving the phsysical and psychosocial health of disadvantaged students. The meta-analysis includes 3 studies which report the mean weight gain (seen as a beneficial outcome) and observed standard deviation in the treatment and control groups. All 3 studies which do not report the outcome are classified as high risk of bias ("high") by the ORBIT methodology.
+The data is originally from the meta-analysis study by  Kristjansson et al. (2007), and is used in Copas et al. (2014) to shwcase their ORB adjustment method. The study investigates the effect of school feeding for improving the phsysical and psychosocial health of disadvantaged students. The meta-analysis includes 3 studies which report the mean weight gain (seen as a beneficial outcome) and observed standard deviation in the treatment and control groups. All 3 studies which do not report the outcome are classified as high risk of bias ("high") by the Outcome Reporting Bias in Trials (ORBIT) methodology.
 }
 \usage{data("WeightData")}
 \format{

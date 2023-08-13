@@ -2,11 +2,11 @@
 \alias{reORBgen_hetfix}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Version of the reORBgen() function when the heterogeneity variance \eqn{\tau^2} is known.
+Version of the \code{reORBgen()} function when the heterogeneity variance \eqn{\tau^2} is known.
 }
 \description{
 
-An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model with extention to different selection functions to model the ORB mechanism, when treating the \eqn{\tau^2} as a known and fixed parameter. Hence, all optimization methods are one-dimesional only for \eqn{\mu}.
+An implementation of the Copas et al. (2019) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random effects model with extention to different selection functions to model the ORB mechanism, when treating the \eqn{\tau^2} as a known and fixed parameter. Hence, all optimization methods are one-dimesional only for \eqn{\mu}.
 
 }
 \usage{
@@ -70,7 +70,7 @@ tau_squared_fixed
 
 \item{alpha_ben}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.05} in Copas et al. (2019).}
 
-\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}. Only needed for beneficial outcomes. Reccomended to use alpha_bet_one.sided = FALSE for all selection functions.}
+\item{alpha_ben_one.sided}{If TRUE, the one-sided significance threshold \eqn{\text{qnorm}(1-\alpha)} is used for the selection functions (see Details); if FALSE, the two-sided one is used \eqn{\text{qnorm}(1-\alpha/2)}. Only needed for beneficial outcomes. Reccomended to use alpha_bet_one.sided = FALSE for all selection functions.}
 
 \item{alpha_harm}{The value for the desired confidence level if the outcome of interest is beneficial, e.g., \eqn{\alpha=0.01} in Copas et al. (2019).}
 
@@ -80,7 +80,7 @@ tau_squared_fixed
 
 \item{Wald.CI}{If TRUE calculates the one-dimensional Wald confidence intervals.}
 
-\item{selection.benefit}{A character specifying the selection function to be used for the ORB-adjustment of a beneficial outcome. The options are "Copas.twoside", "Copas.oneside" (default), "Neg.exp.piecewise", and "Sigmoid.cont". See details. Only needed for beneficial outcomes.}
+\item{selection.benefit}{A character specifying the selection function to be used for the ORB-adjustment of a beneficial outcome. The options are "Copas.twoside", "Copas.oneside" (default), "Neg.exp.piecewise", and "Sigmoid.cont". See Details. Only needed for beneficial outcomes.}
 
 \item{weight_param}{A positive number to be included if the selection function from selection.benefit is "Neg.exp.piecewise" or "Sigmoid.cont". See details. Only needed for beneficial outcomes.}
 
@@ -90,7 +90,7 @@ tau_squared_fixed
 
 \item{upper}{A numerber value for the upper bound for the optimization problem for \eqn{\mu}.}
 
-\item{low.risk}{If TRUE, the studies for which the missing outcome is classified as low risk of bias, i.e., "low", are also included in the adjustment. If FALSE, only the "high" are used, and the "low" are disregarded. It is reccomended to use both "high" and "low" when selection.function is "Neg.exp.piecewise" or "Sigmoid.cont", and only "high" when selection.function is "Copas.twoside" or "Copas.oneside", as originally proposed by Copas et al. (2019). See details. Only needed for beneficial outcomes.}
+\item{low.risk}{If TRUE, the studies for which the missing outcome is classified as low risk of bias, i.e., "low", are also included in the adjustment. If FALSE, only the "high" are used, and the "low" are disregarded. It is reccomended to use both "high" and "low" when selection.function is "Neg.exp.piecewise" or "Sigmoid.cont", and only "high" when selection.function is "Copas.twoside" or "Copas.oneside", as originally proposed by Copas et al. (2019). See Details. Only needed for beneficial outcomes.}
 
 \item{tau_squared_fixed}{A number to be used for the true underlying heterogeneity variance \eqn{\tau^2}}
 

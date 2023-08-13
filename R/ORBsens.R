@@ -233,7 +233,7 @@ ORBsens <- function(p_vals=NULL,
     #y the logRR of the reported studies
     #s2 the sigma squared of the reported studies
     #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
-    #n_rep number of reportes studies
+    #n_rep number of reported studies
     #n_rep_s number of reported and non significant studies
 
 
@@ -294,7 +294,7 @@ ORBsens <- function(p_vals=NULL,
     #y the logRR of the reported studies
     #s2 the sigma squared of the reported studies
     #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
-    #n_rep number of reportes studies
+    #n_rep number of reported studies
     #n_rep_s number of reported and non significant studies
 
 
@@ -350,7 +350,7 @@ ORBsens <- function(p_vals=NULL,
       #y the logRR of the reported studies
       #s2 the sigma squared of the reported studies
       #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
-      #n_rep number of reportes studies
+      #n_rep number of reported studies
       #n_rep_s number of reported and non significant studies
 
 
@@ -402,7 +402,7 @@ ORBsens <- function(p_vals=NULL,
           #y the logRR of the reported studies
           #s2 the sigma squared of the reported studies
 
-          #n_rep number of reportes studies
+          #n_rep number of reported studies
           #n_rep_s number of reported and non significant studies
 
 
@@ -492,7 +492,7 @@ ORBsens <- function(p_vals=NULL,
         #y the logRR of the reported studies
         #s2 the sigma squared of the reported studies
         #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
-        #n_rep number of reportes studies
+        #n_rep number of reported studies
         #n_rep_P number of reported and positive studies
 
 
@@ -551,7 +551,7 @@ ORBsens <- function(p_vals=NULL,
         #y the logRR of the reported studies
         #s2 the sigma squared of the reported studies
         #s2_imp_HR, s2_imp_LR the imputed variances of the HR and LR studies
-        #n_rep number of reportes studies
+        #n_rep number of reported studies
         #n_rep_P number of reported and positive studies
 
 

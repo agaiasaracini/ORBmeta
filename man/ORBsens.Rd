@@ -2,10 +2,10 @@
 \alias{ORBsens}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to adjust for outcome reporting bias (ORB) in a random-effect meta-analysis and conduct sensitivity analyses, according to the methodology developed by Copas et al. (2014) with extensions.
+Function to adjust for outcome reporting bias (ORB) in a random effects meta-analysis and conduct sensitivity analyses, according to the methodology developed by Copas et al. (2014) with extensions.
 }
 \description{
-An implementation of the Copas et al. (2014) method to adjust for outcome reporting bias (ORB) in meta-anlyses of clinical trials for the random-effect model for beneficial outcomes, and extention to harmful outcomes (see Details). The \code{ORBsens} function can take in binary outcome data (i.e., the user should provide \code{a}, \code{c}, \code{n1}, \code{n2}), as well as means and standard errors (i.e., the user should provide \code{mu1}, \code{mu2}, \code{sd1}, \code{sd2}, \code{n1}, \code{n2}). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the ORBIT methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function includes uncertainty in the risk of bias classification through the \code{p_vals} or \code{eta_vals} for beneficial and harmful outcomes respectively (see Details).
+An implementation of the Copas et al. (2014) method to adjust for ORB in meta-anlyses of clinical trials for the random effects model for beneficial outcomes, and extention to harmful outcomes (see Details). The \code{ORBsens} function can take in binary outcome data (i.e., the user should provide \code{a}, \code{c}, \code{n1}, \code{n2}), as well as means and standard errors (i.e., the user should provide \code{mu1}, \code{mu2}, \code{sd1}, \code{sd2}, \code{n1}, \code{n2}). The outcome variable is reported for some studies, and unreported for others. The unreported studies should have entries "high", i.e., high risk of bias, or "low", i.e., low risk of bias. The risk of bias classification should be done according to the Outcome Reporting Bias in Trials (ORBIT) methodology. For the method to work, the sample sizes are required for all studies (reported and unreported). The function includes uncertainty in the risk of bias classification through the \code{p_vals} or \code{eta_vals} for beneficial and harmful outcomes respectively (see Details).
 }
 \usage{
 ORBsens(
@@ -150,6 +150,8 @@ R package created as part of Master's Thesis in Statistics at ETH Zurich.
 
 #Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a beneficial outcome from PPHData.
 
+data(PPHDdata)
+
 p1.grid <- seq(0.7, 1, by=0.1)
 p2.grid <- seq(0.7, 1, by=0.1)
 grid <- expand.grid(p1 = p1.grid, p2 = p2.grid)
@@ -189,6 +191,8 @@ filled.contour(x=p1.grid,
 
 
 #Sensitivity analysis contour plot for the ORB-adjusted estiamte of the treatment effect of a harmful outcome from EpilepsyData.
+
+data(EpilepsyData)
 
 eta1.grid <- seq(0.7, 1, by=0.1)
 eta2.grid <- seq(0.7, 1, by=0.1)

@@ -382,7 +382,7 @@ reORBgen_hetfixed <- function(a=NULL, c=NULL,
 
       }
 
-      #From Held's book solutions likelihood inference
+      #From prof Held's book likelihood inference
       LR.lower.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
                             interval=c(-10,mle.u))$root
 
@@ -533,14 +533,14 @@ reORBgen_hetfixed <- function(a=NULL, c=NULL,
 
       }
 
-      #From Held's book solutions likelihood inference
+      #From prof Held's book likelihood inference
       LR.lower.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
                             interval=c(-10,mle.u))$root
 
       LR.upper.u <- uniroot(Vectorize(function(mu){LRstat.u(mu) - z}),
                             interval=c(mle.u, 10))$root
 
-      #harm djusted
+      #harm adjusted
       LRstat.h <- function(mu){
 
         2*(f.adj.h(mle.h, logRR, sigma_squared, sigma_squared_imputed, tau_squared) - f.adj.h(mu, logRR, sigma_squared, sigma_squared_imputed, tau_squared))

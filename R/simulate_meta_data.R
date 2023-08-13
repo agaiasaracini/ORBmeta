@@ -68,23 +68,25 @@ simulate_meta_data <- function(n_studies, mu, tau_squared, n_treatment=50, n_con
   meta_data_miss$s[high_index] <- "high"
 
 
-  #among the rest, choose some at random some to be low risk
-  if (length(which(meta_data_miss$y == "high")) > 0) { # if there is at least one HR
-    non_high_indices <- which(meta_data_miss$y != "high") # indices reported
-    n_high_rows <- length(which(meta_data_miss$y == "high")) # number of HR
-    n_values_to_replace <- min(sample(0:n_high_rows, 1), length(non_high_indices)) # number of values to replace so that never more low than high
-    replace_indices <- ifelse(length(non_high_indices) == 1,
-                              non_high_indices, #if there is only one non-high study, pick that one to be low
-                              sample(non_high_indices, n_values_to_replace)) #if there are more than one, pick
+  if (length(which(meta_data_miss$y == "high")) > 0){
+    non_high_indices <- which(meta_data_miss$y != "high")
+    n_high_rows <- length(which(meta_data_miss$y == "high"))
+    n_values_to_replace <- min(sample(0:n_high_rows, 1), length(non_high_indices))
+
+    if (length(non_high_indices) > 1){
+      replace_indices <- sample(non_high_indices, n_values_to_replace)
+    } else {
+      replace_indices <- non_high_indices
+    }
+
+    #replace_indices <- sample(non_high_indices, n_values_to_replace)
     meta_data_miss$y[replace_indices] <- "low"
     meta_data_miss$s[replace_indices] <- "low"
-
   } else {
-
     meta_data_miss$y <- meta_data_miss$y
     meta_data_miss$s <- meta_data_miss$s
-
   }
+
 
   #make sure we have at least 3 studies that are reported otheriwse calculationg of ci unstable
   #pls also v unrealistic that there would be a meta analysis conducted on 2 studies!

@@ -4,7 +4,7 @@
 #The reORBgen function which is described in the reORBgen.Rd file
 #Implementation of the Copas et al. (2019) method for ORB adjustment
 #in meta-anlyses of clinical trials, for the random effects model.
-#re: random effect
+#re: random effects
 #ORB: correction
 #gen: generic, because it takes in an observed treatment effect, assumed to be
 #normally distributed, with standard error and sample sizes
@@ -65,7 +65,7 @@ reORBgen <- function(a=NULL, c=NULL,
   #Copas.oneside DEFAULT
   #Neg.exp.piecewise
   #Sigmoid.cont
-  #For the first two, L-BFGS-B sometimes doesn't work well so Nelder-Mead needed
+  #For the first two, L-BFGS-B sometimes doesn't work well sometimes so Nelder-Mead better
 
   #If alpha_ben_one.sided=TRUE, apart from copas.twosides, which is always two sided by nature,
   #we use the one-sided threshold z=1.64
