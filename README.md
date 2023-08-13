@@ -1,14 +1,18 @@
 # ORBmeta
 
 
-The package implements the methodology developed by Copas et al. (2019) and Copas et al. (2014) as well as extensions, to adjust for ORB in meta-analyses. 
+The package implements the methodology developed by Copas et al. (2019) and Copas et al. (2014) as well as extensions, to adjust for outcome reportin bias (ORB) in meta-analyses. 
 
 # Installing ORBmeta
 
 In the console follow these steps:
+
 install.packages("devtools")
+
 library(devtools)
+
 devtools::install_github("agaiasaracini/ORBmeta")
+
 library(ORBmeta)
 
 # Functions
@@ -18,3 +22,9 @@ in the random effects model context. This function can be used to generate a met
 # Datasets
 The package also contains some example datasets where ORB is present and the ORBIT methdology is used to classify the unreported data in high/low risk of bias. EpilepsyData contains multiple outcomes, both harmful and beneficial, and was used in Copas et al. (2019), 
 PPHData and WeightData contain one beneficial outcome and were originally used in Copas et al. (2014).
+
+# References
+
+Copas, J., Marson, A., Williamson, P., and Kirkham, J. (2019). Model-based sensitivity analysis for outcome reporting bias in the meta analysis of benefit and harm outcomes. Statistical Methods in Medical Research, 28, 889–903. 
+
+Copas, J., Dwan, K., Kirkham, J., and Williamson, P. (2014). A model-based correction for outcome reporting bias in meta-analysis. Biostatistics, 15, 370–383. 
