@@ -1,7 +1,7 @@
 # ORBmeta
 
 
-The package implements the methodology developed by Copas et al. (2019) and Copas et al. (2014) as well as extensions, to adjust for outcome reportin bias (ORB) in meta-analyses. 
+The package implements the methodology developed by Copas et al. (2019) and Copas et al. (2014) as well as extensions, to adjust for outcome reporting bias (ORB) in meta-analyses. 
 
 # Installing ORBmeta
 
